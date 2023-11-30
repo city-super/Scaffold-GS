@@ -1,6 +1,9 @@
 # Scaffold-GS
 
-We introduce Scaffold-GS, which uses anchor points to distribute local 3D Gaussians, and predicts their attributes on-the-fly based on viewing direction and distance within the view frustum.
+We introduce Scaffold-GS, which uses anchor points to distribute local 3D Gaussians, and predicts their attributes on-the-fly based on viewing direction and distance within the view frustum.\
+[[`Project Page`](https://city-super.github.io/scaffold-gs/)][[`arxiv`]()]
+
+--- 
 <p align="center">
 <img src="figs/pipeline.png" width=100% height=100% 
 class="center">
