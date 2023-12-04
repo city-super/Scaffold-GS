@@ -16,4 +16,4 @@ class="center">
 </p>
 
 
-The code is coming soon~
+The code is estimated to be released in this week~
