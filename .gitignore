@@ -1,0 +1,17 @@
+*.pyc
+.vscode
+temp*
+outputs*
+debug*
+log*
+view*
+wandb*
+*.bak
+data
+*build/*
+*__pycache__*
+diff_rasterization/diff_rast.egg-info
+diff_rasterization/dist
+tensorboard_3d
+screenshots
+submodules*
