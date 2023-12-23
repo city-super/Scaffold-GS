@@ -1,4 +1,4 @@
-exp_name='baseline_init64'
+exp_name='baseline'
 
 voxel_size=0.001
 update_init_factor=16

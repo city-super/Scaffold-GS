@@ -22,7 +22,6 @@ class="center">
 
 
 
-
 ## Installation
 
 We tested on a server configured with Ubuntu 18.04, cuda 11.6 and gcc 9.4.0. Other similar configurations should also work, but we have not verified each one individually.
@@ -87,6 +86,7 @@ To train multiple scenes in parallel, we provide batch training scripts:
  - MipNeRF360: ```train_mip360.sh```
  - BungeeNeRF: ```train_bungee.sh```
  - Deep Blending: ```train_db.sh```
+ - Nerf Synthetic: base ->```train_nerfsynthetic.sh```; with warmup->```train_nerfsynthetic_withwarmup.sh```
 
  run them with 
  ```
