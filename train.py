@@ -30,7 +30,8 @@ import shutil, pathlib
 from pathlib import Path
 from PIL import Image
 import torchvision.transforms.functional as tf
-from lpipsPyTorch import lpips
+# from lpipsPyTorch import lpips
+import lpips
 from random import randint
 from utils.loss_utils import l1_loss, ssim
 from gaussian_renderer import prefilter_voxel, render, network_gui
@@ -44,6 +45,7 @@ from argparse import ArgumentParser, Namespace
 from arguments import ModelParams, PipelineParams, OptimizationParams
 
 # torch.set_num_threads(32)
+lpips_fn = lpips.LPIPS(net='vgg').to('cuda')
 
 try:
     from torch.utils.tensorboard import SummaryWriter
@@ -400,7 +402,7 @@ def evaluate(model_paths, visible_count=None, wandb=None, tb_writer=None, datase
         for idx in tqdm(range(len(renders)), desc="Metric evaluation progress"):
             ssims.append(ssim(renders[idx], gts[idx]))
             psnrs.append(psnr(renders[idx], gts[idx]))
-            lpipss.append(lpips(renders[idx], gts[idx], net_type='vgg'))
+            lpipss.append(lpips_fn(renders[idx], gts[idx]).detach())
         
         if wandb is not None:
             wandb.log({"test_SSIMS":torch.stack(ssims).mean().item(), })
