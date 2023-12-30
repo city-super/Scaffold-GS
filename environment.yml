@@ -17,5 +17,6 @@ dependencies:
   - pip:
     - einops
     - wandb
+    - lpips
     - submodules/diff-gaussian-rasterization
     - submodules/simple-knn
