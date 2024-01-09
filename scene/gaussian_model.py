@@ -9,20 +9,22 @@
 # For inquiries contact  george.drettakis@inria.fr
 #
 
-import torch
-from functools import reduce
-import numpy as np
-from torch_scatter import scatter_max
-from utils.general_utils import inverse_sigmoid, get_expon_lr_func
-from torch import nn
 import os
-from utils.system_utils import mkdir_p
+from functools import reduce
+
+import numpy as np
+import torch
 from plyfile import PlyData, PlyElement
 from simple_knn._C import distCUDA2
-from utils.graphics_utils import BasicPointCloud
-from utils.general_utils import strip_symmetric, build_scaling_rotation
+from torch import nn
+from torch_scatter import scatter_max
 
-    
+from utils.general_utils import (build_scaling_rotation, get_expon_lr_func,
+                                 inverse_sigmoid, strip_symmetric)
+from utils.graphics_utils import BasicPointCloud
+from utils.system_utils import mkdir_p
+
+
 class GaussianModel:
 
     def setup_functions(self):
@@ -131,7 +133,6 @@ class GaussianModel:
         return (
             self._anchor,
             self._offset,
-            self._local,
             self._scaling,
             self._rotation,
             self._opacity,
@@ -145,7 +146,6 @@ class GaussianModel:
         (self.active_sh_degree, 
         self._anchor, 
         self._offset,
-        self._local,
         self._scaling, 
         self._rotation, 
         self._opacity,
