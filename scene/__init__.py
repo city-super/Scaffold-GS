@@ -49,6 +49,8 @@ class Scene:
         else:
             assert False, "Could not recognize scene type!"
 
+        self.gaussians.set_appearance(len(scene_info.train_cameras))
+        
         if not self.loaded_iter:
             if ply_path is not None:
                 with open(ply_path, 'rb') as src_file, open(os.path.join(self.model_path, "input.ply") , 'wb') as dest_file:
@@ -88,15 +90,14 @@ class Scene:
                                                            "point_cloud.ply"))
             self.gaussians.load_mlp_checkpoints(os.path.join(self.model_path,
                                                            "point_cloud",
-                                                           "iteration_" + str(self.loaded_iter),
-                                                           "checkpoint.pth"))
+                                                           "iteration_" + str(self.loaded_iter)))
         else:
             self.gaussians.create_from_pcd(scene_info.point_cloud, self.cameras_extent)
 
     def save(self, iteration):
         point_cloud_path = os.path.join(self.model_path, "point_cloud/iteration_{}".format(iteration))
         self.gaussians.save_ply(os.path.join(point_cloud_path, "point_cloud.ply"))
-        self.gaussians.save_mlp_checkpoints(os.path.join(point_cloud_path, "checkpoint.pth"))
+        self.gaussians.save_mlp_checkpoints(point_cloud_path)
 
     def getTrainCameras(self, scale=1.0):
         return self.train_cameras[scale]

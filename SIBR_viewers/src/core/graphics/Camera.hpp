@@ -66,7 +66,7 @@ namespace sibr
 		void					position( const Vector3f& v );
 
 		/** \return the camer position. */
-		const Vector3f&			position( void ) const;
+		const Vector3f			position( void ) const;
 
 		/** Rotate the camera.
 		\param rotation the quaternion rotation to apply
@@ -332,7 +332,7 @@ namespace sibr
 	inline void				Camera::position( const Vector3f& v ) {
 		_dirtyViewProj = true; _transform.position(v);
 	}
-	inline const Vector3f&		Camera::position( void ) const {
+	inline const Vector3f		Camera::position( void ) const {
 		return _transform.position();
 	}
 

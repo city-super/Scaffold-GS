@@ -1,142 +1,202 @@
-# SIBR Core
+# Scaffold-GS-Viewer
 
-**SIBR** is a System for Image-Based Rendering.  
-It is built around the *sibr-core* in this repo and several *Projects* implementing published research papers.  
-For more complete documentation, see here: [SIBR Documentation](https://sibr.gitlabpages.inria.fr) 
-  
-This **SIBR core** repository provides :
-- a basic Image-Based Renderer
-- a per-pixel implementation of Unstructured Lumigraph (ULR)
-- several dataset tools & pipelines do process input images
-  
-Details on how to run in the documentation and in the section below.  
-If you use this code in a publication, please cite the system as follows:
+We provide two interactive viewers for our method: remote and real-time (recommended). Our viewing solutions are based on the [SIBR](https://sibr.gitlabpages.inria.fr/) framework, developed by the GRAPHDECO group for several novel-view synthesis projects.
 
-```
-@misc{sibr2020,
-   author       = "Bonopera, Sebastien and Esnault, Jerome and Prakash, Siddhant and Rodriguez, Simon and Thonat, Theo and Benadel, Mehdi and Chaurasia, Gaurav and Philip, Julien and Drettakis, George",
-   title        = "sibr: A System for Image Based Rendering",
-   year         = "2020",
-   url          = "https://gitlab.inria.fr/sibr/sibr_core"
-}
-```
+### Hardware Requirements
+- OpenGL 4.5-ready GPU and drivers (or latest MESA software)
+- 4 GB VRAM recommended
+- CUDA-ready GPU with Compute Capability 7.0+ (only for Real-Time Viewer)
 
-## Setup
+### Software Requirements
+- Visual Studio (we used Visual Studio 2022 for Windows)
+- CUDA SDK 11 (we used 11.8)
+- CMake (recent version, we used 3.24.1)
 
-**Note**: The current release is for *Windows 10* only. We are planning a Linux release soon.
+### Pre-built Windows Binaries
+**We provide pre-built binaries of **Real-Time Viewer** for Windows [here](https://drive.google.com/file/d/1QttIiWd8cpsTVIsnuz-HBe67rgK8P0Ty/view?usp=sharing). Due to equipment and timing reasons, we can only guarantee a successful deployment in the Windows environment at this time. 
 
-#### Binary distribution
+Examples : 
 
-The easiest way to use SIBR is to download the binary distribution. All steps described below, including all preprocessing for your datasets will work using this code.
+- [kitchen](https://drive.google.com/file/d/1mVpkepG7mL9HYJeIbdmpo7XQjhrVU20A/view?usp=sharing) in the [Mip-NeRF 360]((https://jonbarron.info/mipnerf360/)) Dataset;
+- [florence_cathedral_side](https://drive.google.com/file/d/1R53SD7oE-56-PWKjRhHdsnQxNSJyFvPw/view?usp=sharing) in the [IMW 2020]([Leaderboard - 2020 IMW Challenge (ubc.ca)](https://www.cs.ubc.ca/research/image-matching-challenge/2020/leaderboard/)) Dataset.
 
-Download the distribution from the page: https://sibr.gitlabpages.inria.fr/download.html (Core, 57Mb); unzip the file and rename the directory "install".
+#### Windows  (we used 11)
+1) First, CMake can find and configure the required dependencies, and the CMake GUI is recommended.
 
-#### Install requirements
+![image](./assets/images/cmake.png)
 
-- [**Visual Studio 2019**](https://visualstudio.microsoft.com/fr/downloads/)
-- [**Cmake 3.16+**](https://cmake.org/download)
-- [**7zip**](https://www.7-zip.org)
-- [**Python 3.8+**](https://www.python.org/downloads/) for shaders installation scripts and dataset preprocess scripts
-- [**Doxygen 1.8.17+**](https://www.doxygen.nl/download.html#srcbin) for documentation
-- [**CUDA 10.1+**](https://developer.nvidia.com/cuda-downloads) and [**CUDnn**](https://developer.nvidia.com/cudnn) if projects requires it
+2) Then, you need to download the appropriate version of `libtorch` for your CUDA environment. Here I used `1.10`. **! ! ! It should be noted that if you are compiling a `debug` version, then you must download the `debug` version of libtorch, otherwise download the `release` version of libtorch.**
 
-Make sure Python, CUDA and Doxygen are in the PATH
+#### VS configuration
 
-If you have Chocolatey, you can grab most of these with this command:
+In Virtual Studio, you need to configure both `SIBR_gaussianViewer_app` and `sibr_gaussian`. **! ! ! Without further emphasis, the following configuration is required for both projects.**
 
-```sh
-choco install cmake 7zip python3 doxygen.install cuda
+1. Start by adding `Include Directories` and the `Library Directories`. The first entry will be the include path for your **Python** environment, not necessarily for Anaconda.
 
-## Visual Studio is available on Chocolatey,
-## though we do advise to set it from Visual Studio Installer and to choose your licensing accordingly
-choco install visualstudio2019community
-```
+   - Include Directories : 
 
-#### Generation of the solution
+     ```
+     Path/to/Python(Anaconda)/include
+     Path/to/libtorch/include
+     Path/to/libtorch/include/torch/csrc/api/include
+     ```
 
-- Checkout this repository's master branch:
-  
-  ```sh
-  ## through HTTPS
-  git clone https://gitlab.inria.fr/sibr/sibr_core.git -b master
-  ## through SSH
-  git clone git@gitlab.inria.fr:sibr/sibr_core.git -b master
-  ```
-- Run Cmake-gui once, select the repo root as a source directory, `build/` as the build directory. Configure, select the Visual Studio C++ Win64 compiler
-- Select the projects you want to generate among the BUILD elements in the list (you can group Cmake flags by categories to access those faster)
-- Generate
+   - Library Directories : 
 
-#### Compilation
+     ```
+     Path/to/Python(Anaconda)/libs
+     Path/to/libtorch/lib
+     ```
 
-- Open the generated Visual Studio solution (`build/sibr_projects.sln`)
-- Build the `ALL_BUILD` target, and then the `INSTALL` target
-- The compiled executables will be put in `install/bin`
-- TODO: are the DLLs properly installed?
+![image](./assets/images/step1.png)
 
-#### Compilation of the documentation
+![image](./assets/images/step2.png)
 
-- Open the generated Visual Studio solution (`build/sibr_projects.sln`)
-- Build the `DOCUMENTATION` target
-- Run `install/docs/index.html` in a browser
+2. After that, you need to add the lib files of **libtorch** in `Linker` → `Input` → `Additional Dependencies`, just to be sure we add all the libs and you also need to add `python{version}.lib` and `cudadevrt.lib`.
 
+   - Libs recommended : 
 
-## Scripts
+     ```
+     asmjit.lib
+     c10.lib
+     c10_cuda.lib
+     caffe2_detectron_ops_gpu.lib
+     caffe2_module_test_dynamic.lib
+     caffe2_nvrtc.lib
+     Caffe2_perfkernels_avx.lib
+     Caffe2_perfkernels_avx2.lib
+     Caffe2_perfkernels_avx512.lib
+     clog.lib
+     cpuinfo.lib
+     dnnl.lib
+     fbgemm.lib
+     fbjni.lib
+     kineto.lib
+     libprotobuf-lited.lib
+     libprotobufd.lib
+     libprotocd.lib
+     mkldnn.lib
+     pthreadpool.lib
+     pytorch_jni.lib
+     torch.lib
+     torch_cpu.lib
+     torch_cuda.lib
+     torch_cuda_cpp.lib
+     torch_cuda_cu.lib
+     XNNPACK.lib
+     python310.lib
+     cudadevrt.lib
+     ```
 
-Some scripts will require you to install `PIL`, and `convert` from `ImageMagick`.
+![image](./assets/images/step4.png)
 
-```sh
-## To install pillow
-python -m pip install pillow
+3. In addition, since the executable requires additional parameters and environment variables, we add them in `Debugging` → `Command Arguments` and `Environment` respectively.
 
-## If you have Chocolatey, you can install imagemagick from this command
-choco install imagemagick
-```
+   - Command Arguments
 
-## Troubleshooting
+     ```
+     -s Path/to/data -m Path/to/ckpt
+     ```
 
-#### Bugs and Issues
+   - Environment
 
-We will track bugs and issues through the Issues interface on gitlab. Inria gitlab does not allow creation of external accounts, so if you have an issue/bug please email <code>sibr@inria.fr</code> and we will either create a guest account or create the issue on our side.
+     ```
+     Path/to/libtorch/lib
+     ```
 
-#### Cmake complaining about the version
+![image](./assets/images/step3.png)
 
-if you are the first to use a very recent Cmake version, you will have to update `CHECKED_VERSION` in the root `CmakeLists.txt`.
+4. Then, we add the required libtorch include directories in `C/C++` → `General` → `Additional Include Directories`.
 
-#### Weird OpenCV error
+   - Additional Include Directories
 
-you probably selected the 32-bits compiler in Cmake-gui.
+     ```
+     Path/to/libtorch/include
+     Path/to/libtorch/include/torch/csrc/api/include
+     ```
 
-#### `Cmd.exe failed with error 009` or similar
+![image](./assets/images/step5.png)
 
-make sure Python is installed and in the path. 
-
-#### `BUILD_ALL` or `INSTALL` fail because of a project you don't really need
-
-build and install each project separately by selecting the proper targets.
-
-#### Error in CUDA headers under Visual Studio 2019
-
-make sure CUDA >= 10.1 (first version to support VS2019) is installed.
-
-## To run an example
-
-For more details, please see the documentation: http://sibr.gitlabpages.inria.fr
-
-Download a dataset from: https://repo-sam.inria.fr/fungraph/sibr-datasets/
-
-e.g., the *sibr-museum-front* dataset in the *DATASETS_PATH* directory.
+5) (Optional) In case libtorch CUDA is not available, add the following command to `Linker` → `Command line` → `Additional Options`.
 
 ```
-wget https://repo-sam.inria.fr/fungraph/sibr-datasets/museum_front27_ulr.zip
+/INCLUDE:?searchsorted_cuda@native@at@@YA?AVTensor@2@AEBV32@0_N1@Z
+/INCLUDE:?warp_size@cuda@at@@YAHXZ
 ```
 
-Once you have built the system or downloaded the binaries (see above), go to *install/bin* and you can run:
+![image](./assets/images/step6.png)
+
+### Navigation in SIBR Viewers
+The SIBR interface provides several methods of navigating the scene. By default, you will be started with an FPS navigator, which you can control with ```W, A, S, D, Q, E``` for camera translation and ```I, K, J, L, U, O``` for rotation. Alternatively, you may want to use a Trackball-style navigator (select from the floating menu). You can also snap to a camera from the data set with the ```Snap to``` button or find the closest camera with ```Snap to closest```. The floating menues also allow you to change the navigation speed. You can use the ```Scaling Modifier``` to control the size of the displayed Gaussians, or show the initial point cloud.
+
+### Running the Network Viewer
+
+You can run the compiled ```SIBR_remoteGaussian_app(_d/_rwdi).exe```  in ```<SIBR install dir>/bin```, e.g.: 
+```shell
+./<SIBR install dir>/bin/SIBR_remoteGaussian_app(_d/_rwdi).exe
 ```
-	sibr_ulrv2_app.exe --path DATASETS_PATH/sibr-museum-front
+The operation Settings of our viewer are the same as the original viewer.
+
+### Running the Real-Time Viewer
+
+
+You can run the compiled ```SIBR_remoteGaussian_app(_d/_rwdi).exe```  in ```<SIBR install dir>/bin```, e.g.: 
+```shell
+./<SIBR install dir>/bin/SIBR_gaussianViewer_app(_d/_rwdi).exe -s <path to data>  -m <path to ckpt>
 ```
 
-You will have an interactive viewer and you can navigate freely in the captured scene. 
-Our default interactive viewer has a main view running the algorithm and a top view to visualize the position of the calibrated cameras. By default you are in WASD mode, and can toggle to trackball using the "y" key. Please see the page [Interface](https://sibr.gitlabpages.inria.fr/docs/nightly/howto_sibr_useful_objects.html) for more details on the interface.
+The operation Settings of our viewer are the same as the original viewer. Also, you need to add the missing .dll file to `./<SIBR install dir>/bin`.
 
-Please see the documentation on how to create a dataset from your own scene, and the various other IBR algorithms available.
+**To unlock the full frame rate, please disable V-Sync on your machine and also in the application (Menu &rarr; Display). In a multi-GPU system (e.g., laptop) your OpenGL/Display GPU should be the same as your CUDA GPU (e.g., by setting the application's GPU preference on Windows, see below) for maximum performance.**
 
+![Teaser image](assets/images/select.png)
+
+In addition to the initial point cloud and the splats, you also have the option to visualize the Gaussians by rendering them as ellipsoids from the floating menu.
+SIBR has many other functionalities, please see the [documentation](https://sibr.gitlabpages.inria.fr/) for more details on the viewer, navigation options etc. There is also a Top View (available from the menu) that shows the placement of the input cameras and the original SfM point cloud; please note that Top View slows rendering when enabled. The real-time viewer also uses slightly more aggressive, fast culling, which can be toggled in the floating menu. If you ever encounter an issue that can be solved by turning fast culling off, please let us know.
+
+## Default dataset/checkpoint structure 
+
+Recommended dataset structure in the source path location:
+
+```
+<location>
+|---images
+|   |---<image 0>
+|   |---<image 1>
+|   |---...
+|---sparse
+    |---0
+        |---cameras.bin
+        |---images.bin
+        |---points3D.bin
+```
+
+or
+
+```
+<location>
+|---images
+|   |---<image 0>
+|   |---<image 1>
+|   |---...
+|---points3D.ply
+|---transforms.json
+```
+
+Recommended checkpoint  structure in the model path location:
+
+```
+<location>
+|---point_cloud
+|   |---point_cloud.ply
+|---cameras.json
+|---cfg_args
+|---color_mlp.pt
+|---cov_mlp.pt
+|---opacity_mlp.pt
+(|---embedding_appearance.pt)
+|---input.ply
+```
+## Acknowledgement
+
+This repository is heavily based on SIBR viewers in [gaussian-splatting](https://github.com/graphdeco-inria/gaussian-splatting). Thanks to their great work!

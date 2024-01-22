@@ -3,7 +3,7 @@
  * GRAPHDECO research group, https://team.inria.fr/graphdeco
  * All rights reserved.
  *
- * This software is free for non-commercial, research and evaluation use 
+ * This software is free for non-commercial, research and evaluation use
  * under the terms of the LICENSE.md file.
  *
  * For inquiries contact sibr@inria.fr and/or George.Drettakis@inria.fr
@@ -15,11 +15,11 @@
 #include "core/scene/IParseData.hpp"
 
 
-namespace sibr{
+namespace sibr {
 
 	/**
 	* Class used to store the data required for defining an IBR Scene
-	* 
+	*
 	*
 	* Members:
 	* - _basePathName: Base dataset directory path.
@@ -34,8 +34,8 @@ namespace sibr{
 	* \ingroup sibr_scene
 	*/
 
-	class SIBR_SCENE_EXPORT ParseData: public IParseData {
-		
+	class SIBR_SCENE_EXPORT ParseData : public IParseData {
+
 	public:
 
 		/**
@@ -49,15 +49,14 @@ namespace sibr{
 		* \param customPath Path to algorithm specific data
 		* \param scene_metadata_filename Specify the filename of the Scene Metadata file to load specific scene
 		*/
-		void  getParsedBundlerData(const std::string & dataset_path, const std::string & customPath, const std::string & scene_metadata_filename);
+		void  getParsedBundlerData(const std::string& dataset_path, const std::string& customPath, const std::string& scene_metadata_filename);
 
 		/**
 		* \brief Function to parse data from a template dataset path.
 		* \param dataset_path Path to the folder containing data
 		* \param customPath Path to algorithm specific data
 		*/
-		void  getParsedMeshroomData(const std::string & dataset_path, const std::string & customPath = "");
-
+		void  getParsedMeshroomData(const std::string& dataset_path, const std::string& customPath = "");
 
 		/**
 		* \brief Function to parse data from a colmap dataset path.
@@ -66,17 +65,16 @@ namespace sibr{
 		* This function can be used for direct compatibility with colmap data in SIBR.
 		* The function automatically computes the intrinsic and extrinsic parameters of the camera, input images filename, widht and height etc.
 		* Colmap uses LHS coordinate system while SIBR uses RHS coordinate system. The function applies appropriate transformation to handle this case.
-		* 
+		*
 		* For further compatibility with FrIBR, which enforces a Y-up RHS coordinate system, we need to apply an extra conversion to the rotation matrix, to 'flip back' from y-down to y-up.
 		* \note Note: when applying the above mentioned conversion, the mesh needs to be converted by the same converter matrix
 		* \param dataset_path Path to the folder containing data
 		* \param fovXfovY_flag activate two dimensional fov parameters
 		* \param capreal_flag use capreal data
 		*/
-		void  getParsedColmapData(const std::string & dataset_path, const int fovXfovY_flag, const bool capreal_flag = true);
+		void  getParsedColmapData(const std::string& dataset_path, const int fovXfovY_flag, const bool capreal_flag = true);
 
-
-		void  getParsedColmap2Data(const std::string & dataset_path, const int fovXfovY_flag, const bool capreal_flag = true);
+		void  getParsedColmap2Data(const std::string& dataset_path, const int fovXfovY_flag, const bool capreal_flag = true);
 
 		void getParsedGaussianData(const std::string& dataset_path);
 
@@ -84,26 +82,28 @@ namespace sibr{
 
 		void getParsedChunkedData(const std::string& dataset_path);
 
+		void getParsedCityData(const std::string& dataset_path);
+
 		/**
 		* \brief Function to parse data from a template dataset path.
 		* \param dataset_path Path to the folder containing data
 		* \param customPath Path to algorithm specific data
 		* \param nvm_path Specify the filename of the NVM path.
 		*/
-		void  getParsedNVMData(const std::string & dataset_path, const std::string & customPath, const std::string & nvm_path);
+		void  getParsedNVMData(const std::string& dataset_path, const std::string& customPath, const std::string& nvm_path);
 
 		/**
 		* \brief Function to parse data from a dataset path. Will automatically determine the type of dataset based on the files present.
 		* \param myArgs Arguments containing the dataset path and other infos
 		* \param customPath additional data path
 		*/
-		void  getParsedData(const BasicIBRAppArgs & myArgs, const std::string & customPath = "") override;
+		void  getParsedData(const BasicIBRAppArgs& myArgs, const std::string& customPath = "") override;
 
 		/**
 		* \brief Getter for the information regarding the input images.
 		*
 		*/
-		const std::vector<sibr::ImageListFile::Infos>&	imgInfos(void) const override;
+		const std::vector<sibr::ImageListFile::Infos>& imgInfos(void) const override;
 
 		/**
 		* \brief Setter for the information regarding the input images.
@@ -127,7 +127,7 @@ namespace sibr{
 		* \brief Getter for the list of active cameras/images.
 		*
 		*/
-		const std::vector<bool>&						activeImages(void) const override;
+		const std::vector<bool>& activeImages(void) const override;
 
 		/**
 		* \brief Setter for the list of active cameras/images.
@@ -139,31 +139,31 @@ namespace sibr{
 		* \brief Getter for the base path name where the dataset is located.
 		*
 		*/
-		const std::string&								basePathName(void) const override;
+		const std::string& basePathName(void) const override;
 
 		/**
 		* \brief Setter for the base path name where the dataset is located.
 		*
 		*/
-		void											basePathName(std::string & path)  override;
-		
+		void											basePathName(std::string& path)  override;
+
 		/**
 		* \brief Getter for the mesh path where the dataset is located.
 		*
 		*/
-		const std::string&								meshPath(void) const override;
+		const std::string& meshPath(void) const override;
 
 		/**
 		* \brief Setter for the mesh path where the dataset is located.
 		*
 		*/
-		void											meshPath(std::string & path)  override;
+		void											meshPath(std::string& path)  override;
 
 		/**
 		* \brief Getter for the dataset type.
 		*
 		*/
-		const IParseData::Type&							datasetType(void) const override;
+		const IParseData::Type& datasetType(void) const override;
 
 		/**
 		* \brief Setter for the dataset type.
@@ -199,17 +199,17 @@ namespace sibr{
 		* \brief Function to parse the scene metadata file to read image data.
 		*
 		*/
-		virtual bool									parseSceneMetadata(const std::string & scene_metadata_path);
-	
+		virtual bool									parseSceneMetadata(const std::string& scene_metadata_path);
+
 	protected:
-		
+
 		/**
 		* \brief Function to parse the camera calibration files to read camera properties (camera matrix etc.).
 		*
 		*/
-		bool parseBundlerFile(const std::string & bundler_file_path);
+		bool parseBundlerFile(const std::string& bundler_file_path);
 
-		
+
 		/**
 		* \brief Function to populate scene info from camera infos to appropriate location.
 		*
@@ -224,13 +224,13 @@ namespace sibr{
 		std::vector<bool>							_activeImages;
 		int											_numCameras;
 		Type										_datasetType = Type::EMPTY;
-		
+
 	};
 
 
 	///// INLINE DEFINITIONS /////
-	
-	inline const std::vector<sibr::ImageListFile::Infos>&	ParseData::imgInfos(void) const {
+
+	inline const std::vector<sibr::ImageListFile::Infos>& ParseData::imgInfos(void) const {
 		return _imgInfos;
 	}
 
@@ -239,15 +239,15 @@ namespace sibr{
 		_imgInfos = infos;
 	}
 
-	inline const int ParseData::numCameras( void ) const {		
-		return _numCameras;		
+	inline const int ParseData::numCameras(void) const {
+		return _numCameras;
 	}
 
 	inline void ParseData::numCameras(int numCams)
 	{
 		_numCameras = numCams;
 	}
-	
+
 	inline const std::vector<bool>& ParseData::activeImages(void) const {
 		return _activeImages;
 	}
@@ -257,7 +257,7 @@ namespace sibr{
 		_activeImages = activeCams;
 	}
 
-	inline const std::string & ParseData::basePathName(void) const
+	inline const std::string& ParseData::basePathName(void) const
 	{
 		return _basePathName;
 	}
@@ -267,7 +267,7 @@ namespace sibr{
 		_basePathName = path;
 	}
 
-	inline const std::string & ParseData::meshPath(void) const
+	inline const std::string& ParseData::meshPath(void) const
 	{
 		return _meshPath;
 	}
@@ -301,7 +301,7 @@ namespace sibr{
 		_imgPath = imPath;
 	}
 
-	inline const ParseData::Type & ParseData::datasetType(void) const
+	inline const ParseData::Type& ParseData::datasetType(void) const
 	{
 		return _datasetType;
 	}

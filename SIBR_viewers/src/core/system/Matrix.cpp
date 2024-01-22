@@ -21,8 +21,10 @@ namespace sibr
 		const float xScale = yScale/ratio;
 
 		Matrix4f m;
-		const float dx = 2.0f * p.x() - 1.0f;
-		const float dy = 2.0f * p.y() - 1.0f;
+		//const float dx = 2.0f * p.x() - 1.0f;
+		//const float dy = 2.0f * p.y() - 1.0f;
+		const float dx = 0.f;
+		const float dy = 0.f;
 		m << 
 			xScale,    0,          dx,             0,
 			0,    yScale,          dy,             0,

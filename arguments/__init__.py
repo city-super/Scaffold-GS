@@ -61,8 +61,21 @@ class ModelParams(ParamGroup):
         self._resolution = -1
         self._white_background = False
         self.data_device = "cuda"
-        self.eval = True
+        self.eval = False
         self.lod = 0
+
+        self.appearance_dim = 32
+        self.lowpoly = False
+        self.ds = 1
+        self.ratio = 1 # sampling the input point cloud
+        self.undistorted = False 
+        
+        # In the Bungeenerf dataset, we propose to set the following three parameters to True,
+        # Because there are enough dist variations.
+        self.add_opacity_dist = False
+        self.add_cov_dist = False
+        self.add_color_dist = False
+        
         super().__init__(parser, "Loading Parameters", sentinel)
 
     def extract(self, args):
@@ -105,21 +118,26 @@ class OptimizationParams(ParamGroup):
         self.mlp_cov_lr_final = 0.004
         self.mlp_cov_lr_delay_mult = 0.01
         self.mlp_cov_lr_max_steps = 30_000
-
         
         self.mlp_color_lr_init = 0.008
         self.mlp_color_lr_final = 0.00005
         self.mlp_color_lr_delay_mult = 0.01
         self.mlp_color_lr_max_steps = 30_000
-        
+
+        self.mlp_color_lr_init = 0.008
+        self.mlp_color_lr_final = 0.00005
+        self.mlp_color_lr_delay_mult = 0.01
+        self.mlp_color_lr_max_steps = 30_000
         
         self.mlp_featurebank_lr_init = 0.01
         self.mlp_featurebank_lr_final = 0.00001
         self.mlp_featurebank_lr_delay_mult = 0.01
         self.mlp_featurebank_lr_max_steps = 30_000
 
-
-
+        self.appearance_lr_init = 0.05
+        self.appearance_lr_final = 0.0005
+        self.appearance_lr_delay_mult = 0.01
+        self.appearance_lr_max_steps = 30_000
 
         self.percent_dense = 0.01
         self.lambda_dssim = 0.2

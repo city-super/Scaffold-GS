@@ -3,7 +3,7 @@
  * GRAPHDECO research group, https://team.inria.fr/graphdeco
  * All rights reserved.
  *
- * This software is free for non-commercial, research and evaluation use 
+ * This software is free for non-commercial, research and evaluation use
  * under the terms of the LICENSE.md file.
  *
  * For inquiries contact sibr@inria.fr and/or George.Drettakis@inria.fr
@@ -18,7 +18,7 @@
 #include "picojson/picojson.hpp"
 
 
-// Colmap binary stuff
+ // Colmap binary stuff
 #include "colmapheader.h"
 typedef uint32_t image_t;
 typedef uint32_t camera_t;
@@ -336,35 +336,35 @@ namespace sibr
 			//read the camera parameters
 
 			std::function<Eigen::Matrix3f(const double[9])> matrix = [](const double q[9])
-			{
-
-				Eigen::Matrix3f m;
-				double qq = sqrt(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
-				double qw, qx, qy, qz;
-				if (qq > 0)
 				{
-					qw = q[0] / qq;
-					qx = q[1] / qq;
-					qy = q[2] / qq;
-					qz = q[3] / qq;
-				}
-				else
-				{
-					qw = 1;
-					qx = qy = qz = 0;
-				}
-				m(0, 0) = float(qw * qw + qx * qx - qz * qz - qy * qy);
-				m(0, 1) = float(2 * qx * qy - 2 * qz * qw);
-				m(0, 2) = float(2 * qy * qw + 2 * qz * qx);
-				m(1, 0) = float(2 * qx * qy + 2 * qw * qz);
-				m(1, 1) = float(qy * qy + qw * qw - qz * qz - qx * qx);
-				m(1, 2) = float(2 * qz * qy - 2 * qx * qw);
-				m(2, 0) = float(2 * qx * qz - 2 * qy * qw);
-				m(2, 1) = float(2 * qy * qz + 2 * qw * qx);
-				m(2, 2) = float(qz * qz + qw * qw - qy * qy - qx * qx);
 
-				return m;
-			};
+					Eigen::Matrix3f m;
+					double qq = sqrt(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
+					double qw, qx, qy, qz;
+					if (qq > 0)
+					{
+						qw = q[0] / qq;
+						qx = q[1] / qq;
+						qy = q[2] / qq;
+						qz = q[3] / qq;
+					}
+					else
+					{
+						qw = 1;
+						qx = qy = qz = 0;
+					}
+					m(0, 0) = float(qw * qw + qx * qx - qz * qz - qy * qy);
+					m(0, 1) = float(2 * qx * qy - 2 * qz * qw);
+					m(0, 2) = float(2 * qy * qw + 2 * qz * qx);
+					m(1, 0) = float(2 * qx * qy + 2 * qw * qz);
+					m(1, 1) = float(qy * qy + qw * qw - qz * qz - qx * qx);
+					m(1, 2) = float(2 * qz * qy - 2 * qx * qw);
+					m(2, 0) = float(2 * qx * qz - 2 * qy * qw);
+					m(2, 1) = float(2 * qy * qz + 2 * qw * qx);
+					m(2, 2) = float(qz * qz + qw * qw - qy * qy - qx * qx);
+
+					return m;
+				};
 
 			for (int i = 0; i < ncam; ++i)
 			{
@@ -761,7 +761,7 @@ namespace sibr
 					camerasFile2 << " " << camidtokens[id][i];
 				camerasFile2 << "\n\n";
 
-				imagesFile2<< valid;
+				imagesFile2 << valid;
 				for (int i = 1; i < tokens.size() - 1; i++)
 					imagesFile2 << " " << tokens[i];
 				imagesFile2 << " " << valid << std::endl;
@@ -804,7 +804,7 @@ namespace sibr
 		bundle_file >> numImages;	// read first value (number of images)
 		getline(bundle_file, line);	// ignore the rest of the line
 
-									// Read all filenames
+		// Read all filenames
 		struct ImgInfos
 		{
 			std::string name;
@@ -850,9 +850,9 @@ namespace sibr
 			}
 			else {
 				// hack; use info of last available image, but (always) change name
-				if( i < imgInfos.size())
+				if (i < imgInfos.size())
 					infoPrevImage = infos = imgInfos[infosId];
-				else 
+				else
 					infos = infoPrevImage;
 
 				std::stringstream ss;
@@ -1222,7 +1222,7 @@ namespace sibr
 		std::stringstream ss;
 		ss << std::setprecision(16);
 		float focal;
-		if( recomputeFocal )
+		if (recomputeFocal)
 			focal = 0.5f * h() / tan(fovy() / 2.0f); // We cannot set the focal but we need to compute it
 		else
 			focal = _focal;
@@ -1328,7 +1328,7 @@ namespace sibr
 		const std::string imagesListing = colmapSparsePath + "/images.bin";
 
 
-  		std::ifstream camerasFile(camerasListing, std::ios::binary);
+		std::ifstream camerasFile(camerasListing, std::ios::binary);
 		std::ifstream imagesFile(imagesListing, std::ios::binary);
 
 		if (!camerasFile.is_open()) {
@@ -1353,9 +1353,9 @@ namespace sibr
 		};
 
 		std::map<size_t, CameraParametersColmap> cameraParameters;
-  		const size_t num_cameras = ReadBinaryLittleEndian<uint64_t>(&camerasFile);
+		const size_t num_cameras = ReadBinaryLittleEndian<uint64_t>(&camerasFile);
 
-  		for (size_t i = 0; i < num_cameras ; ++i) {
+		for (size_t i = 0; i < num_cameras; ++i) {
 
 			CameraParametersColmap params;
 
@@ -1365,7 +1365,7 @@ namespace sibr
 			params.height = ReadBinaryLittleEndian<uint64_t>(&camerasFile);
 			std::vector<double> Params(4);
 
-    			ReadBinaryLittleEndian<double>(&camerasFile, &Params);
+			ReadBinaryLittleEndian<double>(&camerasFile, &Params);
 			params.fx = float(Params[0]);
 			params.fy = float(Params[1]);
 			params.dx = float(Params[2]);
@@ -1379,18 +1379,18 @@ namespace sibr
 			0, -1, 0,
 			0, 0, -1;
 
-  		const size_t num_reg_images = ReadBinaryLittleEndian<uint64_t>(&imagesFile);
+		const size_t num_reg_images = ReadBinaryLittleEndian<uint64_t>(&imagesFile);
 		for (size_t i = 0; i < num_reg_images; ++i) {
 
 			uint	    cId = ReadBinaryLittleEndian<image_t>(&imagesFile);
 			float       qw = float(ReadBinaryLittleEndian<double>(&imagesFile));
-			float       qx = float(ReadBinaryLittleEndian<double>(&imagesFile)) ;
-			float       qy = float(ReadBinaryLittleEndian<double>(&imagesFile)) ;
-			float       qz = float(ReadBinaryLittleEndian<double>(&imagesFile)) ;
+			float       qx = float(ReadBinaryLittleEndian<double>(&imagesFile));
+			float       qy = float(ReadBinaryLittleEndian<double>(&imagesFile));
+			float       qz = float(ReadBinaryLittleEndian<double>(&imagesFile));
 			float       tx = float(ReadBinaryLittleEndian<double>(&imagesFile));
 			float       ty = float(ReadBinaryLittleEndian<double>(&imagesFile));
 			float       tz = float(ReadBinaryLittleEndian<double>(&imagesFile));
-			size_t      id = ReadBinaryLittleEndian<camera_t>(&imagesFile) ;
+			size_t      id = ReadBinaryLittleEndian<camera_t>(&imagesFile);
 
 
 			if (cameraParameters.find(id) == cameraParameters.end())
@@ -1434,14 +1434,14 @@ namespace sibr
 			cameras.push_back(camera);
 
 
-    		// ignore the 2d points
-    		const size_t num_points2D = ReadBinaryLittleEndian<uint64_t>(&imagesFile);
+			// ignore the 2d points
+			const size_t num_points2D = ReadBinaryLittleEndian<uint64_t>(&imagesFile);
 
-    			for (size_t j = 0; j < num_points2D; ++j) {
-			      const double x = ReadBinaryLittleEndian<double>(&imagesFile);
-			      const double y = ReadBinaryLittleEndian<double>(&imagesFile);
-				  point3D_t id = ReadBinaryLittleEndian<point3D_t>(&imagesFile);
-    			}
+			for (size_t j = 0; j < num_points2D; ++j) {
+				const double x = ReadBinaryLittleEndian<double>(&imagesFile);
+				const double y = ReadBinaryLittleEndian<double>(&imagesFile);
+				point3D_t id = ReadBinaryLittleEndian<point3D_t>(&imagesFile);
+			}
 		}
 		return cameras;
 	}
@@ -1510,6 +1510,71 @@ namespace sibr
 		return cameras;
 	}
 
+	std::vector<InputCamera::Ptr> InputCamera::loadCityTransform(const std::string& transformPath, const float zNear, const float zFar, const int fovXfovYFlag)
+	{
+		std::ifstream json_file(transformPath, std::ios::in);
+
+		if (!json_file)
+		{
+			std::cerr << "file loading failed: " << transformPath << std::endl;
+			return std::vector<InputCamera::Ptr>();
+		}
+
+		std::vector<InputCamera::Ptr> cameras;
+
+		picojson::value v;
+		picojson::set_last_error(std::string());
+		std::string err = picojson::parse(v, json_file);
+		if (!err.empty()) {
+			picojson::set_last_error(err);
+			json_file.setstate(std::ios::failbit);
+		}
+
+		//float fovx = v.get("camera_angle_x").get<double>();
+		picojson::array& frames = v.get("frames").get<picojson::array>();
+
+		for (int i = 0; i < frames.size(); i++)
+		{
+			std::string imgname = frames[i].get("file_path").get<std::string>();
+
+			auto mat = frames[i].get("transform_matrix").get<picojson::array>();
+
+			Eigen::Matrix4f matrix;
+			for (int i = 0; i < 4; i++)
+			{
+				auto row = mat[i].get<picojson::array>();
+				for (int j = 0; j < 4; j++)
+				{
+					matrix(i, j) = row[j].get<double>();
+				}
+			}
+
+			Eigen::Matrix3f R = matrix.block<3, 3>(0, 0);
+			Eigen::Vector3f T(matrix(0, 3), matrix(1, 3), matrix(2, 3));
+
+			float focalx = frames[i].get("fl_x").get<double>();
+			float focaly = frames[i].get("fl_y").get<double>();
+			float w = frames[i].get("w").get<double>();
+			float h = frames[i].get("h").get<double>();
+
+			sibr::InputCamera::Ptr camera;
+			if (fovXfovYFlag) {
+				camera = std::make_shared<InputCamera>(InputCamera(focaly, focalx, 0.0f, 0.0f, int(w), int(h), i));
+			}
+			else {
+				camera = std::make_shared<InputCamera>(InputCamera(focalx, 0.0f, 0.0f, int(w), int(h), i));
+			}
+
+			camera->name(imgname);
+			camera->position(T);
+			camera->rotation(sibr::Quaternionf(R));
+			camera->znear(zNear);
+			camera->zfar(zFar);
+			cameras.push_back(camera);
+		}
+		return cameras;
+	}
+
 	std::vector<InputCamera::Ptr> InputCamera::loadTransform(const std::string& transformPath, int w, int h, std::string extension, const float zNear, const float zFar, const int offset, const int fovXfovYFlag)
 	{
 		std::ifstream json_file(transformPath, std::ios::in);
@@ -1553,7 +1618,7 @@ namespace sibr
 			Eigen::Vector3f T(matrix(0, 3), matrix(1, 3), matrix(2, 3));
 
 			float focalx = 0.5f * w / tan(fovx / 2.0f);
-			float focaly = (((float)h)/w) * focalx;
+			float focaly = (((float)h) / w) * focalx;
 
 			sibr::InputCamera::Ptr camera;
 			if (fovXfovYFlag) {
@@ -1574,4 +1639,4 @@ namespace sibr
 	}
 
 
-} 
+}

@@ -388,6 +388,7 @@ namespace sibr
 		Arg<Vector2i> rendering_size = { "rendering-size", { 0, 0 }, "size at which rendering is performed" };
 		Arg<int> texture_width = { "texture-width", 0 , "size of the input data in memory"};
 		Arg<float> texture_ratio = { "texture-ratio", 1.0f };
+		Arg<int> appearance_id = { "appearance_id", 0 , "id of the appearance code" };
 		Arg<int> rendering_mode = { "rendering-mode", RENDERMODE_MONO, "select mono (0) or stereo (1) rendering mode" };
 		Arg<sibr::Vector3f> focal_pt = { "focal-pt", {0.0f, 0.0f, 0.0f} };
 		Arg<Switch> colmap_fovXfovY_flag = { "colmap_fovXfovY_flag", false };

@@ -207,6 +207,8 @@ namespace sibr
 	typedef	Eigen::Matrix<int, 4,			1,Eigen::DontAlign>			Vector4i;
 	typedef	Eigen::Matrix<float, 4,			1,Eigen::DontAlign>			Vector4f;
 	typedef	Eigen::Matrix<double, 4,		1,Eigen::DontAlign>			Vector4d;
+	typedef	Eigen::Matrix<float, 6,			1, Eigen::DontAlign>		Vector6f;
+	typedef	Eigen::Matrix<float, 32,		1,Eigen::DontAlign>			Vector32f;
 
 	/**
 		Return a 4x4 3D rotation matrix that aligns the first vector onto the second one.

@@ -9,22 +9,21 @@
 # For inquiries contact  george.drettakis@inria.fr
 #
 
-import os
-from functools import reduce
-
-import numpy as np
 import torch
+from functools import reduce
+import numpy as np
+from torch_scatter import scatter_max
+from utils.general_utils import inverse_sigmoid, get_expon_lr_func
+from torch import nn
+import os
+from utils.system_utils import mkdir_p
 from plyfile import PlyData, PlyElement
 from simple_knn._C import distCUDA2
-from torch import nn
-from torch_scatter import scatter_max
-
-from utils.general_utils import (build_scaling_rotation, get_expon_lr_func,
-                                 inverse_sigmoid, strip_symmetric)
 from utils.graphics_utils import BasicPointCloud
-from utils.system_utils import mkdir_p
+from utils.general_utils import strip_symmetric, build_scaling_rotation
+from scene.embedding import Embedding
 
-
+    
 class GaussianModel:
 
     def setup_functions(self):
@@ -52,7 +51,13 @@ class GaussianModel:
                  update_depth: int=3, 
                  update_init_factor: int=100,
                  update_hierachy_factor: int=4,
-                 use_feat_bank = False):
+                 use_feat_bank : bool = False,
+                 appearance_dim : int = 32,
+                 ratio : int = 1,
+                 add_opacity_dist : bool = False,
+                 add_cov_dist : bool = False,
+                 add_color_dist : bool = False,
+                 ):
 
         self.feat_dim = feat_dim
         self.n_offsets = n_offsets
@@ -61,6 +66,13 @@ class GaussianModel:
         self.update_init_factor = update_init_factor
         self.update_hierachy_factor = update_hierachy_factor
         self.use_feat_bank = use_feat_bank
+
+        self.appearance_dim = appearance_dim
+        self.embedding_appearance = None
+        self.ratio = ratio
+        self.add_opacity_dist = add_opacity_dist
+        self.add_cov_dist = add_cov_dist
+        self.add_color_dist = add_color_dist
 
         self._anchor = torch.empty(0)
         self._offset = torch.empty(0)
@@ -91,22 +103,25 @@ class GaussianModel:
                 nn.Softmax(dim=1)
             ).cuda()
 
-
+        self.opacity_dist_dim = 1 if self.add_opacity_dist else 0
         self.mlp_opacity = nn.Sequential(
-            nn.Linear(feat_dim+3+1, feat_dim),
+            nn.Linear(feat_dim+3+self.opacity_dist_dim, feat_dim),
             nn.ReLU(True),
             nn.Linear(feat_dim, n_offsets),
             nn.Tanh()
         ).cuda()
 
+        self.add_cov_dist = add_cov_dist
+        self.cov_dist_dim = 1 if self.add_cov_dist else 0
         self.mlp_cov = nn.Sequential(
-            nn.Linear(feat_dim+3+1, feat_dim),
+            nn.Linear(feat_dim+3+self.cov_dist_dim, feat_dim),
             nn.ReLU(True),
             nn.Linear(feat_dim, 7*self.n_offsets),
         ).cuda()
 
+        self.color_dist_dim = 1 if self.add_color_dist else 0
         self.mlp_color = nn.Sequential(
-            nn.Linear(feat_dim+3+1, feat_dim),
+            nn.Linear(feat_dim+3+self.color_dist_dim+self.appearance_dim, feat_dim),
             nn.ReLU(True),
             nn.Linear(feat_dim, 3*self.n_offsets),
             nn.Sigmoid()
@@ -117,7 +132,8 @@ class GaussianModel:
         self.mlp_opacity.eval()
         self.mlp_cov.eval()
         self.mlp_color.eval()
-        
+        if self.appearance_dim > 0:
+            self.embedding_appearance.eval()
         if self.use_feat_bank:
             self.mlp_feature_bank.eval()
 
@@ -125,7 +141,8 @@ class GaussianModel:
         self.mlp_opacity.train()
         self.mlp_cov.train()
         self.mlp_color.train()
-        
+        if self.appearance_dim > 0:
+            self.embedding_appearance.train()
         if self.use_feat_bank:                   
             self.mlp_feature_bank.train()
 
@@ -133,6 +150,7 @@ class GaussianModel:
         return (
             self._anchor,
             self._offset,
+            self._local,
             self._scaling,
             self._rotation,
             self._opacity,
@@ -146,6 +164,7 @@ class GaussianModel:
         (self.active_sh_degree, 
         self._anchor, 
         self._offset,
+        self._local,
         self._scaling, 
         self._rotation, 
         self._opacity,
@@ -157,6 +176,13 @@ class GaussianModel:
         self.denom = denom
         self.optimizer.load_state_dict(opt_dict)
 
+    def set_appearance(self, num_cameras):
+        if self.appearance_dim > 0:
+            self.embedding_appearance = Embedding(num_cameras, self.appearance_dim).cuda()
+
+    @property
+    def get_appearance(self):
+        return self.embedding_appearance
 
     @property
     def get_scaling(self):
@@ -208,8 +234,7 @@ class GaussianModel:
 
     def create_from_pcd(self, pcd : BasicPointCloud, spatial_lr_scale : float):
         self.spatial_lr_scale = spatial_lr_scale
-        ratio = 1
-        points = pcd.points[::ratio]
+        points = pcd.points[::self.ratio]
 
         if self.voxel_size <= 0:
             init_points = torch.tensor(points).float().cuda()
@@ -271,6 +296,21 @@ class GaussianModel:
                 {'params': self.mlp_feature_bank.parameters(), 'lr': training_args.mlp_featurebank_lr_init, "name": "mlp_featurebank"},
                 {'params': self.mlp_cov.parameters(), 'lr': training_args.mlp_cov_lr_init, "name": "mlp_cov"},
                 {'params': self.mlp_color.parameters(), 'lr': training_args.mlp_color_lr_init, "name": "mlp_color"},
+                {'params': self.embedding_appearance.parameters(), 'lr': training_args.appearance_lr_init, "name": "embedding_appearance"},
+            ]
+        elif self.appearance_dim > 0:
+            l = [
+                {'params': [self._anchor], 'lr': training_args.position_lr_init * self.spatial_lr_scale, "name": "anchor"},
+                {'params': [self._offset], 'lr': training_args.offset_lr_init * self.spatial_lr_scale, "name": "offset"},
+                {'params': [self._anchor_feat], 'lr': training_args.feature_lr, "name": "anchor_feat"},
+                {'params': [self._opacity], 'lr': training_args.opacity_lr, "name": "opacity"},
+                {'params': [self._scaling], 'lr': training_args.scaling_lr, "name": "scaling"},
+                {'params': [self._rotation], 'lr': training_args.rotation_lr, "name": "rotation"},
+
+                {'params': self.mlp_opacity.parameters(), 'lr': training_args.mlp_opacity_lr_init, "name": "mlp_opacity"},
+                {'params': self.mlp_cov.parameters(), 'lr': training_args.mlp_cov_lr_init, "name": "mlp_cov"},
+                {'params': self.mlp_color.parameters(), 'lr': training_args.mlp_color_lr_init, "name": "mlp_color"},
+                {'params': self.embedding_appearance.parameters(), 'lr': training_args.appearance_lr_init, "name": "embedding_appearance"},
             ]
         else:
             l = [
@@ -315,6 +355,11 @@ class GaussianModel:
                                                         lr_final=training_args.mlp_featurebank_lr_final,
                                                         lr_delay_mult=training_args.mlp_featurebank_lr_delay_mult,
                                                         max_steps=training_args.mlp_featurebank_lr_max_steps)
+        if self.appearance_dim > 0:
+            self.appearance_scheduler_args = get_expon_lr_func(lr_init=training_args.appearance_lr_init,
+                                                        lr_final=training_args.appearance_lr_final,
+                                                        lr_delay_mult=training_args.appearance_lr_delay_mult,
+                                                        max_steps=training_args.appearance_lr_max_steps)
 
     def update_learning_rate(self, iteration):
         ''' Learning rate scheduling per step '''
@@ -328,15 +373,19 @@ class GaussianModel:
             if param_group["name"] == "mlp_opacity":
                 lr = self.mlp_opacity_scheduler_args(iteration)
                 param_group['lr'] = lr
-            if self.use_feat_bank and param_group["name"] == "mlp_featurebank":
-                lr = self.mlp_featurebank_scheduler_args(iteration)
-                param_group['lr'] = lr
             if param_group["name"] == "mlp_cov":
                 lr = self.mlp_cov_scheduler_args(iteration)
                 param_group['lr'] = lr
             if param_group["name"] == "mlp_color":
                 lr = self.mlp_color_scheduler_args(iteration)
                 param_group['lr'] = lr
+            if self.use_feat_bank and param_group["name"] == "mlp_featurebank":
+                lr = self.mlp_featurebank_scheduler_args(iteration)
+                param_group['lr'] = lr
+            if self.appearance_dim > 0 and param_group["name"] == "embedding_appearance":
+                lr = self.appearance_scheduler_args(iteration)
+                param_group['lr'] = lr
+            
             
     def construct_list_of_attributes(self):
         l = ['x', 'y', 'z', 'nx', 'ny', 'nz']
@@ -432,7 +481,10 @@ class GaussianModel:
     def cat_tensors_to_optimizer(self, tensors_dict):
         optimizable_tensors = {}
         for group in self.optimizer.param_groups:
-            if 'mlp' in group['name'] or 'conv' in group['name'] or 'feat_base' in group['name']:
+            if  'mlp' in group['name'] or \
+                'conv' in group['name'] or \
+                'feat_base' in group['name'] or \
+                'embedding' in group['name']:
                 continue
             assert len(group["params"]) == 1
             extension_tensor = tensors_dict[group["name"]]
@@ -482,7 +534,10 @@ class GaussianModel:
     def _prune_anchor_optimizer(self, mask):
         optimizable_tensors = {}
         for group in self.optimizer.param_groups:
-            if 'mlp' in group['name'] or 'conv' in group['name'] or 'feat_base' in group['name']:
+            if  'mlp' in group['name'] or \
+                'conv' in group['name'] or \
+                'feat_base' in group['name'] or \
+                'embedding' in group['name']:
                 continue
 
             stored_state = self.optimizer.state.get(group['params'][0], None)
@@ -679,26 +734,79 @@ class GaussianModel:
         
         self.max_radii2D = torch.zeros((self.get_anchor.shape[0]), device="cuda")
 
-    def save_mlp_checkpoints(self,path):
+    def save_mlp_checkpoints(self, path, mode = 'split'):#split or unite
         mkdir_p(os.path.dirname(path))
-        
-        if self.use_feat_bank:
-            torch.save({
-                'opacity_mlp': self.mlp_opacity.state_dict(),
-                'mlp_feature_bank': self.mlp_feature_bank.state_dict(),
-                'cov_mlp': self.mlp_cov.state_dict(),
-                'color_mlp': self.mlp_color.state_dict()}, path)
+        if mode == 'split':
+            self.mlp_opacity.eval()
+            opacity_mlp = torch.jit.trace(self.mlp_opacity, (torch.rand(1, self.feat_dim+3+self.opacity_dist_dim).cuda()))
+            opacity_mlp.save(os.path.join(path, 'opacity_mlp.pt'))
+            self.mlp_opacity.train()
+
+            self.mlp_cov.eval()
+            cov_mlp = torch.jit.trace(self.mlp_cov, (torch.rand(1, self.feat_dim+3+self.cov_dist_dim).cuda()))
+            cov_mlp.save(os.path.join(path, 'cov_mlp.pt'))
+            self.mlp_cov.train()
+
+            self.mlp_color.eval()
+            color_mlp = torch.jit.trace(self.mlp_color, (torch.rand(1, self.feat_dim+3+self.color_dist_dim+self.appearance_dim).cuda()))
+            color_mlp.save(os.path.join(path, 'color_mlp.pt'))
+            self.mlp_color.train()
+
+            if self.use_feat_bank:
+                self.mlp_feature_bank.eval()
+                feature_bank_mlp = torch.jit.trace(self.mlp_feature_bank, (torch.rand(1, 3+1).cuda()))
+                feature_bank_mlp.save(os.path.join(path, 'feature_bank_mlp.pt'))
+                self.mlp_feature_bank.train()
+
+            if self.appearance_dim:
+                self.embedding_appearance.eval()
+                emd = torch.jit.trace(self.embedding_appearance, (torch.zeros((1,), dtype=torch.long).cuda()))
+                emd.save(os.path.join(path, 'embedding_appearance.pt'))
+                self.embedding_appearance.train()
+
+        elif mode == 'unite':
+            if self.use_feat_bank:
+                torch.save({
+                    'opacity_mlp': self.mlp_opacity.state_dict(),
+                    'cov_mlp': self.mlp_cov.state_dict(),
+                    'color_mlp': self.mlp_color.state_dict(),
+                    'feature_bank_mlp': self.mlp_feature_bank.state_dict(),
+                    'appearance': self.embedding_appearance.state_dict()
+                    }, os.path.join(path, 'checkpoints.pth'))
+            elif self.appearance_dim > 0:
+                torch.save({
+                    'opacity_mlp': self.mlp_opacity.state_dict(),
+                    'cov_mlp': self.mlp_cov.state_dict(),
+                    'color_mlp': self.mlp_color.state_dict(),
+                    'appearance': self.embedding_appearance.state_dict()
+                    }, os.path.join(path, 'checkpoints.pth'))
+            else:
+                torch.save({
+                    'opacity_mlp': self.mlp_opacity.state_dict(),
+                    'cov_mlp': self.mlp_cov.state_dict(),
+                    'color_mlp': self.mlp_color.state_dict(),
+                    }, os.path.join(path, 'checkpoints.pth'))
         else:
-            torch.save({
-                'opacity_mlp': self.mlp_opacity.state_dict(),
-                'cov_mlp': self.mlp_cov.state_dict(),
-                'color_mlp': self.mlp_color.state_dict()}, path)
+            raise NotImplementedError
 
 
-    def load_mlp_checkpoints(self,path):
-        checkpoint = torch.load(path)
-        self.mlp_opacity.load_state_dict(checkpoint['opacity_mlp'])
-        self.mlp_cov.load_state_dict(checkpoint['cov_mlp'])
-        self.mlp_color.load_state_dict(checkpoint['color_mlp'])
-        if self.use_feat_bank:
-            self.mlp_feature_bank.load_state_dict(checkpoint['mlp_feature_bank'])
+    def load_mlp_checkpoints(self, path, mode = 'split'):#split or unite
+        if mode == 'split':
+            self.mlp_opacity = torch.jit.load(os.path.join(path, 'opacity_mlp.pt')).cuda()
+            self.mlp_cov = torch.jit.load(os.path.join(path, 'cov_mlp.pt')).cuda()
+            self.mlp_color = torch.jit.load(os.path.join(path, 'color_mlp.pt')).cuda()
+            if self.use_feat_bank:
+                self.mlp_feature_bank = torch.jit.load(os.path.join(path, 'feature_bank_mlp.pt')).cuda()
+            if self.appearance_dim > 0:
+                self.embedding_appearance = torch.jit.load(os.path.join(path, 'embedding_appearance.pt')).cuda()
+        elif mode == 'unite':
+            checkpoint = torch.load(os.path.join(path, 'checkpoints.pth'))
+            self.mlp_opacity.load_state_dict(checkpoint['opacity_mlp'])
+            self.mlp_cov.load_state_dict(checkpoint['cov_mlp'])
+            self.mlp_color.load_state_dict(checkpoint['color_mlp'])
+            if self.use_feat_bank:
+                self.mlp_feature_bank.load_state_dict(checkpoint['feature_bank_mlp'])
+            if self.appearance_dim > 0:
+                self.embedding_appearance.load_state_dict(checkpoint['appearance'])
+        else:
+            raise NotImplementedError

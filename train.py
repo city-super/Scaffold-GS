@@ -82,14 +82,13 @@ def saveRuntimeCode(dst: str) -> None:
 def training(dataset, opt, pipe, dataset_name, testing_iterations, saving_iterations, checkpoint_iterations, checkpoint, debug_from, wandb=None, logger=None, ply_path=None):
     first_iter = 0
     tb_writer = prepare_output_and_logger(dataset)
-    gaussians = GaussianModel(dataset.feat_dim, dataset.n_offsets, dataset.voxel_size, dataset.update_depth, dataset.update_init_factor, dataset.update_hierachy_factor, dataset.use_feat_bank)
-    scene = Scene(dataset, gaussians, ply_path=ply_path)
+    gaussians = GaussianModel(dataset.feat_dim, dataset.n_offsets, dataset.voxel_size, dataset.update_depth, dataset.update_init_factor, dataset.update_hierachy_factor, dataset.use_feat_bank, 
+                              dataset.appearance_dim, dataset.ratio, dataset.add_opacity_dist, dataset.add_cov_dist, dataset.add_color_dist)
+    scene = Scene(dataset, gaussians, ply_path=ply_path, shuffle=False)
     gaussians.training_setup(opt)
     if checkpoint:
         (model_params, first_iter) = torch.load(checkpoint)
         gaussians.restore(model_params, opt)
-
-    
 
     iter_start = torch.cuda.Event(enable_timing = True)
     iter_end = torch.cuda.Event(enable_timing = True)
@@ -178,10 +177,7 @@ def training(dataset, opt, pipe, dataset_name, testing_iterations, saving_iterat
                 del gaussians.offset_gradient_accum
                 del gaussians.offset_denom
                 torch.cuda.empty_cache()
-            
-            
-            
-            
+                    
             # Optimizer step
             if iteration < opt.iterations:
                 gaussians.optimizer.step()
@@ -283,7 +279,6 @@ def render_set(model_path, name, iteration, views, gaussians, pipeline, backgrou
     render_path = os.path.join(model_path, name, "ours_{}".format(iteration), "renders")
     error_path = os.path.join(model_path, name, "ours_{}".format(iteration), "errors")
     gts_path = os.path.join(model_path, name, "ours_{}".format(iteration), "gt")
-
     makedirs(render_path, exist_ok=True)
     makedirs(error_path, exist_ok=True)
     makedirs(gts_path, exist_ok=True)
@@ -328,15 +323,18 @@ def render_set(model_path, name, iteration, views, gaussians, pipeline, backgrou
 
 def render_sets(dataset : ModelParams, iteration : int, pipeline : PipelineParams, skip_train=True, skip_test=False, wandb=None, tb_writer=None, dataset_name=None, logger=None):
     with torch.no_grad():
-        gaussians = GaussianModel(dataset.feat_dim, dataset.n_offsets, dataset.voxel_size, dataset.update_depth, dataset.update_init_factor, dataset.update_hierachy_factor, dataset.use_feat_bank)
+        gaussians = GaussianModel(dataset.feat_dim, dataset.n_offsets, dataset.voxel_size, dataset.update_depth, dataset.update_init_factor, dataset.update_hierachy_factor, dataset.use_feat_bank, 
+                              dataset.appearance_dim, dataset.ratio, dataset.add_opacity_dist, dataset.add_cov_dist, dataset.add_color_dist)
         scene = Scene(dataset, gaussians, load_iteration=iteration, shuffle=False)
         gaussians.eval()
 
         bg_color = [1,1,1] if dataset.white_background else [0, 0, 0]
         background = torch.tensor(bg_color, dtype=torch.float32, device="cuda")
+        if not os.path.exists(dataset.model_path):
+            os.makedirs(dataset.model_path)
 
         if not skip_train:
-            t_train_list, _  = render_set(dataset.model_path, "train", scene.loaded_iter, scene.getTrainCameras(), gaussians, pipeline, background)
+            t_train_list, visible_count  = render_set(dataset.model_path, "train", scene.loaded_iter, scene.getTrainCameras(), gaussians, pipeline, background)
             train_fps = 1.0 / torch.tensor(t_train_list[5:]).mean()
             logger.info(f'Train FPS: \033[1;35m{train_fps.item():.5f}\033[0m')
             if wandb is not None:
@@ -466,8 +464,10 @@ if __name__ == "__main__":
     parser.add_argument('--detect_anomaly', action='store_true', default=False)
     parser.add_argument('--warmup', action='store_true', default=False)
     parser.add_argument('--use_wandb', action='store_true', default=False)
-    parser.add_argument("--test_iterations", nargs="+", type=int, default=[3_000, 7_000, 30_000])
-    parser.add_argument("--save_iterations", nargs="+", type=int, default=[3_000, 7_000, 30_000])
+    # parser.add_argument("--test_iterations", nargs="+", type=int, default=[3_000, 7_000, 30_000])
+    # parser.add_argument("--save_iterations", nargs="+", type=int, default=[3_000, 7_000, 30_000])
+    parser.add_argument("--test_iterations", nargs="+", type=int, default=[30_000])
+    parser.add_argument("--save_iterations", nargs="+", type=int, default=[30_000])
     parser.add_argument("--quiet", action="store_true")
     parser.add_argument("--checkpoint_iterations", nargs="+", type=int, default=[])
     parser.add_argument("--start_checkpoint", type=str, default = None)

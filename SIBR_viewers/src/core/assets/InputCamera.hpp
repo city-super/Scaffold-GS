@@ -3,7 +3,7 @@
  * GRAPHDECO research group, https://team.inria.fr/graphdeco
  * All rights reserved.
  *
- * This software is free for non-commercial, research and evaluation use 
+ * This software is free for non-commercial, research and evaluation use
  * under the terms of the LICENSE.md file.
  *
  * For inquiries contact sibr@inria.fr and/or George.Drettakis@inria.fr
@@ -24,7 +24,7 @@ namespace sibr
 	* \sa Camera, NovelCamera
 	* \ingroup sibr_assets
 	*/
-	class SIBR_ASSETS_EXPORT InputCamera : public Camera 
+	class SIBR_ASSETS_EXPORT InputCamera : public Camera
 	{
 	public:
 		typedef std::shared_ptr<InputCamera> Ptr;
@@ -73,7 +73,7 @@ namespace sibr
 		* \param k2 second distortion parameter
 		* \param active  input image active or not
 		*/
-		InputCamera(int id, int w, int h, sibr::Vector3f & position, sibr::Matrix3f & rotation, float focal, float k1, float k2, bool active);
+		InputCamera(int id, int w, int h, sibr::Vector3f& position, sibr::Matrix3f& rotation, float focal, float k1, float k2, bool active);
 
 		/** Constructor, initialize the input camera.
 		* \param id ID of input image
@@ -101,10 +101,10 @@ namespace sibr
 		InputCamera(InputCamera&&) = default;
 
 		/** Copy operator. */
-		InputCamera&	operator =(const InputCamera&) = default;
+		InputCamera& operator =(const InputCamera&) = default;
 
 		/** Move operator. */
-		InputCamera&	operator =(InputCamera&&) = default;
+		InputCamera& operator =(InputCamera&&) = default;
 
 		/** Input image width
 		* \return width of input image
@@ -124,22 +124,22 @@ namespace sibr
 
 		/** Set camera active status
 		 *\param active if true, camera is in use
-	     */
-		void setActive(bool active) { _active = active ; }
+		 */
+		void setActive(bool active) { _active = active; }
 
 		/** \return the image name */
-		inline const std::string&	name(void) const { return _name; }
+		inline const std::string& name(void) const { return _name; }
 
-		/** Set camera name 
+		/** Set camera name
 		 * \param s the new name
 		 */
-		inline void					name( const std::string& s ) { _name = s; }
+		inline void					name(const std::string& s) { _name = s; }
 
 		/** Update image dimensions. Calls \a update() after changing image width and height
 		* \param w image width
 		* \param h image height
 		*/
-		void size( uint w, uint h );
+		void size(uint w, uint h);
 
 		/** \return the camera id */
 		uint id() const { return _id; }
@@ -148,7 +148,7 @@ namespace sibr
 		 *\param pt 3d world point
 		 *\return screen space position and depth, in (0,w)x(0,h)x(0,1)
 		 */
-		Vector3f projectScreen( const Vector3f& pt ) const;
+		Vector3f projectScreen(const Vector3f& pt) const;
 
 		/** \return the focal length */
 		float focal() const;
@@ -166,28 +166,28 @@ namespace sibr
 		float k2() const;
 
 		/** Back-project pixel coordinates and depth.
-		* \param pixelPos pixel coordinates p[0],p[1] in [0,w-1]x[0,h-1] 
+		* \param pixelPos pixel coordinates p[0],p[1] in [0,w-1]x[0,h-1]
 		* \param depth d in [-1,1]
 		* \returns 3D world point
 		*/
-		Vector3f			unprojectImgSpaceInvertY( const sibr::Vector2i & pixelPos, const float & depth ) const;
+		Vector3f			unprojectImgSpaceInvertY(const sibr::Vector2i& pixelPos, const float& depth) const;
 
 		/** Project 3D point using perspective projection.
 		* \param point3d 3D point
 		* \returns pixel coordinates in [0,w-1]x[0,h-1] and depth d in [-1,1]
 		*/
-		Vector3f			projectImgSpaceInvertY( const Vector3f& point3d  ) const;
+		Vector3f			projectImgSpaceInvertY(const Vector3f& point3d) const;
 
 		/** Load from internal binary representation.
 		 * \param filename file path
 		 * \return success boolean
 		 */
-		bool				loadFromBinary( const std::string& filename );
+		bool				loadFromBinary(const std::string& filename);
 
 		/** Save to disk using internal binary representation.
 		 * \param filename file path
 		 */
-		void				saveToBinary( const std::string& filename ) const;
+		void				saveToBinary(const std::string& filename) const;
 
 		/** Save a file in the IBR TopView format.
 		* \param outfile the destination file
@@ -223,10 +223,10 @@ namespace sibr
 		std::string lookatString() const;
 		/** save a vector of cameras as lookat
 		*/
-		static void saveAsLookat(const std::vector<InputCamera::Ptr> & cams, const std::string & fileName);
+		static void saveAsLookat(const std::vector<InputCamera::Ptr>& cams, const std::string& fileName);
 		/** save a vector of cameras sizes to a file to be read by mitsuba rendering script
 		*/
-		static void saveImageSizes(const std::vector<InputCamera::Ptr> & cams, const std::string & fileName);
+		static void saveImageSizes(const std::vector<InputCamera::Ptr>& cams, const std::string& fileName);
 
 
 		/** Save a vector of cameras as a bundle file.
@@ -236,23 +236,23 @@ namespace sibr
 		 * \param exportImages should empty images with the proper dimensions be saved in a visualize subdirectory
 		 * \param oldFocal: recompute focal, else assign that of camera TODO: fix this
 		*/
-		static void saveAsBundle(const std::vector<InputCamera::Ptr> & cams, const std::string & fileName, bool negativeZ = false, bool exportImages = false, bool recomputeFocal=true);
+		static void saveAsBundle(const std::vector<InputCamera::Ptr>& cams, const std::string& fileName, bool negativeZ = false, bool exportImages = false, bool recomputeFocal = true);
 
 		/** Save a vector of cameras as a lookat file.
 		 *\param cams the cameras
 		 * \param fileName output lookat file path
 		*/
-		static void saveAsLookat(const std::vector<sibr::Camera> & cams, const std::string & fileName);
+		static void saveAsLookat(const std::vector<sibr::Camera>& cams, const std::string& fileName);
 
 		/** Load cameras from a bundler file.
-		 *\param datasetPath path to the root of the dataset, should contain bundle.out, list_images.txt and optionally clipping_planes.txt 
+		 *\param datasetPath path to the root of the dataset, should contain bundle.out, list_images.txt and optionally clipping_planes.txt
 		 * \param zNear default near-plane value to use if the clipping_planes.txt file doesn't exist
 		 * \param zFar default far-plane value to use if the clipping_planes.txt file doesn't exist
 		 * \param bundleName name of the bundle file
 		 * \param listName name of the list images file
 		 * \returns the loaded cameras
 		 */
-		static std::vector<InputCamera::Ptr> load( const std::string& datasetPath, float zNear = 0.01f, float zFar = 1000.0f, const std::string & bundleName = "bundle.out", const std::string & listName = "list_images.txt");
+		static std::vector<InputCamera::Ptr> load(const std::string& datasetPath, float zNear = 0.01f, float zFar = 1000.0f, const std::string& bundleName = "bundle.out", const std::string& listName = "list_images.txt");
 
 		/** Load cameras from a NVM file.
 		*\param nvmPath path to the NVM file
@@ -270,10 +270,11 @@ namespace sibr
 		* \param zFar default far-plane value to use.
 		* \returns the loaded cameras
 		*/
-		static std::vector<InputCamera::Ptr> loadLookat(const std::string& lookatPath, const std::vector<sibr::Vector2u>& wh= std::vector<sibr::Vector2u>(),float zNear= -1, float zFar= -1);
+		static std::vector<InputCamera::Ptr> loadLookat(const std::string& lookatPath, const std::vector<sibr::Vector2u>& wh = std::vector<sibr::Vector2u>(), float zNear = -1, float zFar = -1);
 
 		static std::vector<InputCamera::Ptr> InputCamera::loadTransform(const std::string& transformPath, int w, int h, std::string extension, const float zNear = 0.01f, const float zFar = 1000.0f, const int offset = 0, const int fovXfovYFlag = 0);
 
+		static std::vector<InputCamera::Ptr> InputCamera::loadCityTransform(const std::string& transformPath, const float zNear = 0.01f, const float zFar = 1000.0f, const int fovXfovYFlag = 0);
 		/** Load cameras from a Colmap txt file.
 		* \param colmapSparsePath path to the Colmap sparse directory, should contains cameras.txt and images.txt
 		* \param zNear default near-plane value to use
@@ -296,7 +297,7 @@ namespace sibr
 		* \param path: if this is a path, then you can load more images that those defined in the list_images file of the datset; TODO: possibly should require a list_images.txt for the path
 		* \returns the loaded cameras
 		*/
-		static std::vector<InputCamera::Ptr> loadBundle(const std::string& bundlerPath,  float zNear = 0.01f, float zFar = 1000.0f, const std::string & listImagePath = "", bool path = false);
+		static std::vector<InputCamera::Ptr> loadBundle(const std::string& bundlerPath, float zNear = 0.01f, float zFar = 1000.0f, const std::string& listImagePath = "", bool path = false);
 
 		/** Load cameras from a bundle file.
 		* \param bundlerPath path to the bundle file.
@@ -305,10 +306,10 @@ namespace sibr
 		* \param listImagePath path to the list_images.txt file. Will default to a file in the same directory as the bundle.out file.
 		* \returns the loaded cameras
 		*/
-		static std::vector<InputCamera::Ptr> loadBundleFRIBR(const std::string& bundlerPath, float zNear = 0.01f, float zFar = 1000.0f, const std::string & listImagePath = "");
+		static std::vector<InputCamera::Ptr> loadBundleFRIBR(const std::string& bundlerPath, float zNear = 0.01f, float zFar = 1000.0f, const std::string& listImagePath = "");
 
 		/** Load cameras from a Meshrrom SFM cameras.sfm txt file.
-		* \param meshroomSFMPath path to the Meshroom StructureFromMotion/{dd63cea98bda0e3b53ec76f17b0753b3e4dde589}/ directory, should contains cameras.sfm 
+		* \param meshroomSFMPath path to the Meshroom StructureFromMotion/{dd63cea98bda0e3b53ec76f17b0753b3e4dde589}/ directory, should contains cameras.sfm
 		* \param zNear default near-plane value to use
 		* \param zFar default far-plane value to use.
 		* \returns the loaded cameras
