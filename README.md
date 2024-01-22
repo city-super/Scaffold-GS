@@ -9,7 +9,7 @@
 
 **[2024.01.22]**  We add the appearance embedding to Scaffold-GS to handle wild scenes.
 
-**[2024.01.22]** 🎈👀 The viewer for Scaffold-GS is available now. 
+**[2024.01.22]** 🎈👀 The [viewer](https://github.com/city-super/Scaffold-GS/tree/main/SIBR_viewers) for Scaffold-GS is available now. 
 
 **[2023.12.10]** We release the code.
 
@@ -159,7 +159,7 @@ python metrics.py -m <path to trained model> # Compute error metrics on renderin
 
 ## Viewer
 
-A viewer designed for Scaffold-GS is currently in development. 
+The [viewer](https://github.com/city-super/Scaffold-GS/tree/main/SIBR_viewers) for Scaffold-GS is available now. 
 
 
 
