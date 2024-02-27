@@ -7,6 +7,8 @@
 
 ## News
 
+**[2024.02.27]**  Accepted to [CVPR 2024](https://cvpr.thecvf.com/).
+
 **[2024.01.22]**  We add the appearance embedding to Scaffold-GS to handle wild scenes.
 
 **[2024.01.22]** 🎈👀 The [viewer](https://github.com/city-super/Scaffold-GS/tree/main/SIBR_viewers) for Scaffold-GS is available now. 
