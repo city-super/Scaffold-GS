@@ -21,5 +21,6 @@ dependencies:
     - laspy
     - opencv-python
     - jaxtyping
+    - colorama
     - submodules/diff-gaussian-rasterization
     - submodules/simple-knn
