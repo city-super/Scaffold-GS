@@ -19,5 +19,7 @@ dependencies:
     - wandb
     - lpips
     - laspy
+    - opencv-python
+    - jaxtyping
     - submodules/diff-gaussian-rasterization
     - submodules/simple-knn
