@@ -7,6 +7,8 @@
 
 ## News
 
+**[2024.03.27]**  🎈We release [Octree-GS](https://city-super.github.io/octree-gs), supporting an explicit *LOD* representation, rendering faster in large-scale scene with high quality.
+
 **[2024.03.26]**  🎈We release [GSDF](https://city-super.github.io/GSDF/), which improves rendering and reconstruction quality simultaneously.
 
 **[2024.02.27]**  Accepted to [CVPR 2024](https://cvpr.thecvf.com/).
