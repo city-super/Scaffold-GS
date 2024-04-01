@@ -2,7 +2,17 @@
 
 We provide two interactive viewers for our method: remote and real-time (recommended). Our viewing solutions are based on the [SIBR](https://sibr.gitlabpages.inria.fr/) framework, developed by the GRAPHDECO group for several novel-view synthesis projects.
 
+### Pre-built Windows Binaries
+
+We provide pre-built binaries of **Real-Time Viewer** for Windows [here](https://drive.google.com/file/d/1QttIiWd8cpsTVIsnuz-HBe67rgK8P0Ty/view?usp=sharing). Due to equipment and timing reasons, we can only guarantee a successful deployment in the Windows environment.
+
+Examples : 
+
+- [kitchen](https://drive.google.com/file/d/1mVpkepG7mL9HYJeIbdmpo7XQjhrVU20A/view?usp=sharing) in the [Mip-NeRF 360]((https://jonbarron.info/mipnerf360/)) Dataset;
+- [florence_cathedral_side](https://drive.google.com/file/d/1R53SD7oE-56-PWKjRhHdsnQxNSJyFvPw/view?usp=sharing) in the [IMW 2020]([Leaderboard - 2020 IMW Challenge (ubc.ca)](https://www.cs.ubc.ca/research/image-matching-challenge/2020/leaderboard/)) Dataset.
+
 ### Hardware Requirements
+
 - OpenGL 4.5-ready GPU and drivers (or latest MESA software)
 - 4 GB VRAM recommended
 - CUDA-ready GPU with Compute Capability 7.0+ (only for Real-Time Viewer)
@@ -11,21 +21,15 @@ We provide two interactive viewers for our method: remote and real-time (recomme
 - Visual Studio (we used Visual Studio 2022 for Windows)
 - CUDA SDK 11 (we used 11.8)
 - CMake (recent version, we used 3.24.1)
+- Windows  (we used 11)
 
-### Pre-built Windows Binaries
-**We provide pre-built binaries of **Real-Time Viewer** for Windows [here](https://drive.google.com/file/d/1QttIiWd8cpsTVIsnuz-HBe67rgK8P0Ty/view?usp=sharing). Due to equipment and timing reasons, we can only guarantee a successful deployment in the Windows environment at this time. 
+### Configuration
 
-Examples : 
-
-- [kitchen](https://drive.google.com/file/d/1mVpkepG7mL9HYJeIbdmpo7XQjhrVU20A/view?usp=sharing) in the [Mip-NeRF 360]((https://jonbarron.info/mipnerf360/)) Dataset;
-- [florence_cathedral_side](https://drive.google.com/file/d/1R53SD7oE-56-PWKjRhHdsnQxNSJyFvPw/view?usp=sharing) in the [IMW 2020]([Leaderboard - 2020 IMW Challenge (ubc.ca)](https://www.cs.ubc.ca/research/image-matching-challenge/2020/leaderboard/)) Dataset.
-
-#### Windows  (we used 11)
 1) First, CMake can find and configure the required dependencies, and the CMake GUI is recommended.
 
 ![image](./assets/images/cmake.png)
 
-2) Then, you need to download the appropriate version of `libtorch` for your CUDA environment. Here I used `1.10`. **! ! ! It should be noted that if you are compiling a `debug` version, then you must download the `debug` version of libtorch, otherwise download the `release` version of libtorch.**
+2) Then, you need to download the appropriate version of `libtorch` for your CUDA environment. Here I used `1.10`. **! ! ! It should be noted that if you are compiling a `Debug` version, then you must download [the debug version of libtorch](https://drive.google.com/file/d/1ZqcI32kyDSpAdJEVRGmOIl42OepJkEB7/view?usp=drive_link), otherwise download [the release version of libtorch](https://drive.google.com/file/d/1UisC3Vpz7mzDf_xaClerHts0307lP0BY/view?usp=drive_link).**
 
 #### VS configuration
 
@@ -117,7 +121,7 @@ In Virtual Studio, you need to configure both `SIBR_gaussianViewer_app` and `sib
 
 ![image](./assets/images/step5.png)
 
-5) (Optional) In case libtorch CUDA is not available, add the following command to `Linker` → `Command line` → `Additional Options`.
+5) In case libtorch CUDA is not available, add the following command to `Linker` → `Command line` → `Additional Options`.
 
 ```
 /INCLUDE:?searchsorted_cuda@native@at@@YA?AVTensor@2@AEBV32@0_N1@Z
@@ -131,9 +135,11 @@ The SIBR interface provides several methods of navigating the scene. By default,
 
 ### Running the Network Viewer
 
-You can run the compiled ```SIBR_remoteGaussian_app(_d/_rwdi).exe```  in ```<SIBR install dir>/bin```, e.g.: 
+You can run the compiled ```SIBR_remoteGaussian_app(_d/_rwdi).exe``` in ```<SIBR install dir>/bin```, e.g.: 
 ```shell
-./<SIBR install dir>/bin/SIBR_remoteGaussian_app(_d/_rwdi).exe
+Debug: ./<SIBR install dir>/bin/SIBR_remoteGaussian_app_d.exe
+RelWithDebInfo: ./<SIBR install dir>/bin/SIBR_remoteGaussian_app_rwdi.exe
+Release: ./<SIBR install dir>/bin/SIBR_remoteGaussian_app_rwdi.exe
 ```
 The operation Settings of our viewer are the same as the original viewer.
 
@@ -142,7 +148,9 @@ The operation Settings of our viewer are the same as the original viewer.
 
 You can run the compiled ```SIBR_remoteGaussian_app(_d/_rwdi).exe```  in ```<SIBR install dir>/bin```, e.g.: 
 ```shell
-./<SIBR install dir>/bin/SIBR_gaussianViewer_app(_d/_rwdi).exe -s <path to data>  -m <path to ckpt>
+Debug: ./<SIBR install dir>/bin/SIBR_gaussianViewer_app_d.exe -s <path to data>  -m <path to ckpt>
+RelWithDebInfo: ./<SIBR install dir>/bin/SIBR_remoteGaussian_app_rwdi.exe  -s <path to data>  -m <path to ckpt>
+Release: ./<SIBR install dir>/bin/SIBR_remoteGaussian_app_rwdi.exe  -s <path to data>  -m <path to ckpt>
 ```
 
 The operation Settings of our viewer are the same as the original viewer. Also, you need to add the missing .dll file to `./<SIBR install dir>/bin`.
@@ -160,10 +168,6 @@ Recommended dataset structure in the source path location:
 
 ```
 <location>
-|---images
-|   |---<image 0>
-|   |---<image 1>
-|   |---...
 |---sparse
     |---0
         |---cameras.bin
@@ -175,10 +179,6 @@ or
 
 ```
 <location>
-|---images
-|   |---<image 0>
-|   |---<image 1>
-|   |---...
 |---points3D.ply
 |---transforms.json
 ```
