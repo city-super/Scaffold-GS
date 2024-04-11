@@ -6,6 +6,7 @@
 [[`Project Page`](https://city-super.github.io/scaffold-gs/)][[`arxiv`](https://arxiv.org/abs/2312.00109)]
 
 ## News
+**[2024.04.05]**  Scaffold-GS is selected as a 🎈**highlight** in CVPR2024.
 
 **[2024.03.27]**  🎈We release [Octree-GS](https://city-super.github.io/octree-gs), supporting an explicit *LOD* representation, rendering faster in large-scale scene with high quality.
 
@@ -18,6 +19,10 @@
 **[2024.01.22]** 🎈👀 The [viewer](https://github.com/city-super/Scaffold-GS/tree/main/SIBR_viewers) for Scaffold-GS is available now. 
 
 **[2023.12.10]** We release the code.
+
+## TODO List
+- [ ] Explore on removing the MLP module
+- [ ] Improve the training configuration system
 
 ## Overview
 
