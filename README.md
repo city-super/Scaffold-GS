@@ -185,7 +185,7 @@ If you find our work helpful, please consider citing:
 
 ```bibtex
 @article{scaffoldgs,
-  author    = {Tao Lu and Mulin Yu and Linning Xu and Yuanbo Xiangli and Limin Wang and Dahua Lin and Bo Dai},
+  author    = {Lu, Tao, Mulin Yu, Linning Xu, Yuanbo Xiangli, Limin Wang, Dahua Lin, and Bo Dai.},
   title     = {Scaffold-GS: Structured 3D Gaussians for View-Adaptive Rendering},
   journal   = {Conference on Computer Vision and Pattern Recognition (CVPR)},
   year      = {2024},
