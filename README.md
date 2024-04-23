@@ -184,13 +184,11 @@ The [viewer](https://github.com/city-super/Scaffold-GS/tree/main/SIBR_viewers) f
 If you find our work helpful, please consider citing:
 
 ```bibtex
-@misc{scaffoldgs,
-      title={Scaffold-GS: Structured 3D Gaussians for View-Adaptive Rendering}, 
-      author={Tao Lu and Mulin Yu and Linning Xu and Yuanbo Xiangli and Limin Wang and Dahua Lin and Bo Dai},
-      year={2023},
-      eprint={2312.00109},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
+@article{scaffoldgs,
+  author    = {Tao Lu and Mulin Yu and Linning Xu and Yuanbo Xiangli and Limin Wang and Dahua Lin and Bo Dai},
+  title     = {Scaffold-GS: Structured 3D Gaussians for View-Adaptive Rendering},
+  journal   = {Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year      = {2024},
 }
 ```
 
