@@ -56,7 +56,7 @@ namespace sibr {
 		 * \param render_w rendering width
 		 * \param render_h rendering height
 		 */
-		GaussianView(const sibr::BasicIBRScene::Ptr& ibrScene, uint render_w, uint render_h, const char* file, bool* message_read, int sh_degree, bool white_bg = false, bool useInterop = true, int device = 0,
+		GaussianView(const sibr::BasicIBRScene::Ptr& ibrScene, uint render_w, uint render_h, std::string plyPath, bool* message_read, bool white_bg = false, bool useInterop = true, int device = 0,
 			int appearance_id = 0, bool add_opacity_dist = true, bool add_cov_dist = true, bool add_color_dist = true);
 
 		/** Replace the current scene.
@@ -98,7 +98,6 @@ namespace sibr {
 
 		bool _fastCulling = true;
 		int _device = 0;
-		int _sh_degree = 3;
 
 		int count;
 		int _appearance_id;

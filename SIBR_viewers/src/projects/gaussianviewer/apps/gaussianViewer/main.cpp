@@ -200,11 +200,11 @@ int main(int ac, char** av)
 	plyfile += "point_cloud";
 	if (!myArgs.iteration.isInit())
 	{
-		plyfile += "/" + findLargestNumberedSubdirectory(plyfile) + "/point_cloud.ply";
+		plyfile += "/" + findLargestNumberedSubdirectory(plyfile) + "/";
 	}
 	else
 	{
-		plyfile += "/iteration_" + myArgs.iteration.get() + "/point_cloud.ply";
+		plyfile += "/iteration_" + myArgs.iteration.get() + "/";
 	}
 
 	// Setup the scene: load the proxy, create the texture arrays.
@@ -234,7 +234,7 @@ int main(int ac, char** av)
 	const unsigned int sceneResHeight = usedResolution.y();
 
 	// Create the ULR view.
-	GaussianView::Ptr gaussianView(new GaussianView(scene, sceneResWidth, sceneResHeight, plyfile.c_str(), &messageRead, sh_degree, white_background, !myArgs.noInterop, device, 
+	GaussianView::Ptr gaussianView(new GaussianView(scene, sceneResWidth, sceneResHeight, plyfile, &messageRead, white_background, !myArgs.noInterop, device, 
 													myArgs.appearance_id, add_opacity_dist, add_cov_dist, add_color_dist));
 
 	// Raycaster.

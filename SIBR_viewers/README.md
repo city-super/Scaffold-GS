@@ -4,12 +4,12 @@ We provide two interactive viewers for our method: remote and real-time (recomme
 
 ### Pre-built Windows Binaries
 
-We provide pre-built binaries of **Real-Time Viewer** for Windows [here](https://drive.google.com/file/d/1QttIiWd8cpsTVIsnuz-HBe67rgK8P0Ty/view?usp=sharing). Due to equipment and timing reasons, we can only guarantee a successful deployment in the Windows environment.
+We provide pre-built binaries of **Real-Time Viewer** for Windows [here](https://drive.google.com/file/d/17nPVnRRxO4zMQJ_fKHm13HzvD0wUZ8XF/view?usp=sharing). Due to equipment and timing reasons, we can only guarantee a successful deployment in the Windows environment.
 
 Examples : 
 
-- [kitchen](https://drive.google.com/file/d/1mVpkepG7mL9HYJeIbdmpo7XQjhrVU20A/view?usp=sharing) in the [Mip-NeRF 360]((https://jonbarron.info/mipnerf360/)) Dataset;
-- [florence_cathedral_side](https://drive.google.com/file/d/1R53SD7oE-56-PWKjRhHdsnQxNSJyFvPw/view?usp=sharing) in the [IMW 2020]([Leaderboard - 2020 IMW Challenge (ubc.ca)](https://www.cs.ubc.ca/research/image-matching-challenge/2020/leaderboard/)) Dataset.
+- [kitchen](https://drive.google.com/file/d/17iED9Lrgkp_vHdP7s0JXUEPuB68HUBr7/view?usp=sharing) in the [Mip-NeRF 360]((https://jonbarron.info/mipnerf360/)) Dataset;
+- [florence_cathedral_side](https://drive.google.com/file/d/1QE59k_wG3qS3mtoEknzbbvRTo2as7p_r/view?usp=sharing) in the [IMW 2020]([Leaderboard - 2020 IMW Challenge (ubc.ca)](https://www.cs.ubc.ca/research/image-matching-challenge/2020/leaderboard/)) Dataset.
 
 ### Hardware Requirements
 
@@ -17,7 +17,9 @@ Examples :
 - 4 GB VRAM recommended
 - CUDA-ready GPU with Compute Capability 7.0+ (only for Real-Time Viewer)
 
-### Software Requirements
+### Software RequirementsMarkdown All in One
+Markdown All in One
+
 - Visual Studio (we used Visual Studio 2022 for Windows)
 - CUDA SDK 11 (we used 11.8)
 - CMake (recent version, we used 3.24.1)
@@ -189,13 +191,13 @@ Recommended checkpoint  structure in the model path location:
 <location>
 |---point_cloud
 |   |---point_cloud.ply
-|---cameras.json
+|   |---color_mlp.pt
+|   |---cov_mlp.pt
+|   |---opacity_mlp.pt
+(|   |---embedding_appearance.pt)
 |---cfg_args
-|---color_mlp.pt
-|---cov_mlp.pt
-|---opacity_mlp.pt
-(|---embedding_appearance.pt)
-|---input.ply
+|---cameras.json
+(|---input.ply)
 ```
 ## Acknowledgement
 

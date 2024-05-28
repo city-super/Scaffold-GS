@@ -6,6 +6,9 @@
 [[`Project Page`](https://city-super.github.io/scaffold-gs/)][[`arxiv`](https://arxiv.org/abs/2312.00109)]
 
 ## News
+
+**[2024.05.28]**  We update the [viewer](https://github.com/city-super/Scaffold-GS/tree/main/SIBR_viewers) to conform to the file structure at training.
+
 **[2024.04.05]**  Scaffold-GS is selected as a 🎈**highlight** in CVPR2024.
 
 **[2024.03.27]**  🎈We release [Octree-GS](https://city-super.github.io/octree-gs), supporting an explicit *LOD* representation, rendering faster in large-scale scene with high quality.
@@ -172,6 +175,39 @@ python metrics.py -m <path to trained model> # Compute error metrics on renderin
 
 The [viewer](https://github.com/city-super/Scaffold-GS/tree/main/SIBR_viewers) for Scaffold-GS is available now. 
 
+Recommended dataset structure in the source path location:
+
+```
+<location>
+|---sparse
+    |---0
+        |---cameras.bin
+        |---images.bin
+        |---points3D.bin
+```
+
+or
+
+```
+<location>
+|---points3D.ply
+|---transforms.json
+```
+
+Recommended checkpoint  structure in the model path location:
+
+```
+<location>
+|---point_cloud
+|   |---point_cloud.ply
+|   |---color_mlp.pt
+|   |---cov_mlp.pt
+|   |---opacity_mlp.pt
+(|   |---embedding_appearance.pt)
+|---cfg_args
+|---cameras.json
+(|---input.ply)
+```
 
 
 ## Contact

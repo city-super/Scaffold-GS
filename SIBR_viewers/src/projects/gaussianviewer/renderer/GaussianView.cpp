@@ -366,10 +366,9 @@ std::function<char* (size_t N)> resizeFunctional(void** ptr, size_t& S) {
 	return lambda;
 }
 
-sibr::GaussianView::GaussianView(const sibr::BasicIBRScene::Ptr& ibrScene, uint render_w, uint render_h, const char* file, bool* messageRead, int sh_degree, bool white_bg, bool useInterop, int device, int appearance_id, bool add_opacity_dist, bool add_cov_dist, bool add_color_dist) :
+sibr::GaussianView::GaussianView(const sibr::BasicIBRScene::Ptr& ibrScene, uint render_w, uint render_h, std::string plyPath, bool* messageRead, bool white_bg, bool useInterop, int device, int appearance_id, bool add_opacity_dist, bool add_cov_dist, bool add_color_dist) :
 	_scene(ibrScene),
 	_dontshow(messageRead),
-	_sh_degree(sh_degree),
 	_appearance_id(appearance_id),
 	_add_opacity_dist(add_opacity_dist),
 	_add_cov_dist(add_cov_dist),
@@ -410,28 +409,13 @@ sibr::GaussianView::GaussianView(const sibr::BasicIBRScene::Ptr& ibrScene, uint 
 	}
 	_scene->cameras()->debugFlagCameraAsUsed(imgs_ulr);
 
-	// Load the PLY data (AoS) to the GPU (SoA)
-	count = loadPly(file,
-		anchor_pos,
-		anchor_normal,
-		anchor_offset,
-		anchor_feature,
-		anchor_opacity,
-		anchor_scale_1,
-		anchor_scale_2,
-		anchor_rotation,
-		gaussian_pos,
-		_scenemax,
-		_scenemin
-	);
-
 	// 获取file的文件夹名， file是const char*
-	std::string file_path = file;
-	std::string folder = file_path.substr(0, file_path.size() - 28);
-	std::string opacity_mlp_path = folder + "opacity_mlp.pt";
-	std::string cov_mlp_path = folder + "cov_mlp.pt";
-	std::string color_mlp_path = folder + "color_mlp.pt";
-	std::string appearance_path = folder + "embedding_appearance.pt";
+	std::string ply_path = plyPath + "point_cloud.ply";
+	std::string opacity_mlp_path = plyPath + "opacity_mlp.pt";
+	std::string cov_mlp_path = plyPath + "cov_mlp.pt";
+	std::string color_mlp_path = plyPath + "color_mlp.pt";
+	std::string appearance_path = plyPath + "embedding_appearance.pt";
+	SIBR_LOG << "Loading models from: " << plyPath << std::endl;
 	SIBR_LOG << "opacity_mlp : " << isFileExists_fopen(opacity_mlp_path) << std::endl;
 	SIBR_LOG << "cov_mlp : " << isFileExists_fopen(cov_mlp_path) << std::endl;
 	SIBR_LOG << "color_mlp : " << isFileExists_fopen(color_mlp_path) << std::endl;
@@ -439,7 +423,6 @@ sibr::GaussianView::GaussianView(const sibr::BasicIBRScene::Ptr& ibrScene, uint 
 	opacity_mlp_module = torch::jit::load(opacity_mlp_path, _libtorch_device);
 	color_mlp_module = torch::jit::load(color_mlp_path, _libtorch_device);
 	cov_mlp_module = torch::jit::load(cov_mlp_path, _libtorch_device);
-
 	if (isFileExists_fopen(appearance_path))
 	{
 		appearance_module = torch::jit::load(appearance_path, _libtorch_device);
@@ -451,9 +434,8 @@ sibr::GaussianView::GaussianView(const sibr::BasicIBRScene::Ptr& ibrScene, uint 
 		_add_appearance = false;
 	}
 
-	_boxmin = _scenemin;
-	_boxmax = _scenemax;
-
+	// Load the PLY data (AoS) to the GPU (SoA)
+	count = loadPly(ply_path.c_str(), anchor_pos, anchor_normal, anchor_offset, anchor_feature, anchor_opacity, anchor_scale_1, anchor_scale_2, anchor_rotation, gaussian_pos, _scenemax, _scenemin);
 	ak_pos_all = torch::from_blob(anchor_pos.data(), { count , 3 }, torch::kFloat32).to(_libtorch_device);
 	gs_pos_all = torch::from_blob(gaussian_pos.data(), { count, 30 }, torch::kFloat32).to(_libtorch_device);
 	ak_feat_all = torch::from_blob(anchor_feature.data(), { count, 32 }, torch::kFloat32).to(_libtorch_device);
@@ -462,6 +444,9 @@ sibr::GaussianView::GaussianView(const sibr::BasicIBRScene::Ptr& ibrScene, uint 
 	ak_scale_1 = torch::from_blob(anchor_scale_1.data(), { count, 3 }, torch::kFloat32).to(_libtorch_device);
 	ak_scale_2 = torch::from_blob(anchor_scale_2.data(), { count, 3 }, torch::kFloat32).to(_libtorch_device);
 	ak_scale_2 = torch::exp(ak_scale_2);
+
+	_boxmin = _scenemin;
+	_boxmax = _scenemax;
 
 	// Create space for view parameters
 	CUDA_SAFE_CALL_ALWAYS(cudaMalloc((void**)&view_cuda, sizeof(sibr::Matrix4f)));
