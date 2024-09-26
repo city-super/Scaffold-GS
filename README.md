@@ -7,6 +7,8 @@
 
 ## News
 
+**[2024.09.25]** 🎈We propose **Octree-AnyGS**, a general anchor-based framework that supports explicit Gaussians (2D-GS, 3D-GS) and neural Gaussians (Scaffold-GS). Additionally, **Octree-GS** has been adapted to the aforementioned Gaussian primitives, enabling Level-of-Detail representation for large-scale scenes. This framework holds potential for application to other Gaussian-based methods, with relevant SIBR visualizations forthcoming.(https://github.com/city-super/Octree-AnyGS)
+
 **[2024.05.28]**  We update the [viewer](https://github.com/city-super/Scaffold-GS/tree/main/SIBR_viewers) to conform to the file structure at training.
 
 **[2024.04.05]**  Scaffold-GS is selected as a 🎈**highlight** in CVPR2024.
