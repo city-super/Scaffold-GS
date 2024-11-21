@@ -493,10 +493,10 @@ if __name__ == "__main__":
 
     
 
-    try:
-        saveRuntimeCode(os.path.join(args.model_path, 'backup'))
-    except:
-        logger.info(f'save code failed~')
+    # try:
+    #     saveRuntimeCode(os.path.join(args.model_path, 'backup'))
+    # except:
+    #     logger.info(f'save code failed~')
         
     dataset = args.source_path.split('/')[-1]
     exp_name = args.model_path.split('/')[-2]
